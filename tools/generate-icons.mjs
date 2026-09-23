@@ -101,15 +101,24 @@ const box = union(pathL, pathW);
 const monoW = box.maxX - box.minX;
 const monoH = box.maxY - box.minY;
 
-// Ajustement dans la boîte, marge comprise, en conservant les proportions.
-const inner = 100 * (1 - 2 * MARGIN);
-const fit = Math.min(inner / monoW, inner / monoH);
-const offsetX = (100 - monoW * fit) / 2 - box.minX * fit;
-const offsetY = (100 - monoH * fit) / 2 - box.minY * fit;
 
-/* ---------- SVG ---------- */
+/* ---------- SVG ----------
+   Playfair Display est un didone : ses déliés sont très fins et disparaissent
+   en dessous d'une trentaine de pixels. On calque donc le dessin sur la taille
+   de rendu — marge resserrée et déliés épaissis quand l'icône est petite. Le
+   fichier logo.svg, lui, reste la version pleine. */
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+function buildSvg({ margin, stroke }) {
+  const inner = 100 * (1 - 2 * margin);
+  const fit = Math.min(inner / monoW, inner / monoH);
+  const offsetX = (100 - monoW * fit) / 2 - box.minX * fit;
+  const offsetY = (100 - monoH * fit) / 2 - box.minY * fit;
+
+  // Le contour est peint dans la couleur du remplissage : il épaissit le trait
+  // sans rien ajouter de visible.
+  const contour = stroke > 0 ? ` stroke="${INK}" stroke-width="${(stroke / fit).toFixed(3)}" stroke-linejoin="round"` : "";
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
   <title>LégiWord</title>
   <defs>
     <!-- Dégradé de marque, 135° : du coin haut-gauche au coin bas-droit,
@@ -120,24 +129,35 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width
     </linearGradient>
   </defs>
   <rect width="100" height="100" rx="${(RADIUS * 100).toFixed(1)}" ry="${(RADIUS * 100).toFixed(1)}" fill="url(#marque)"/>
-  <g transform="translate(${offsetX.toFixed(3)} ${offsetY.toFixed(3)}) scale(${fit.toFixed(5)})" fill="${INK}">
+  <g transform="translate(${offsetX.toFixed(3)} ${offsetY.toFixed(3)}) scale(${fit.toFixed(5)})" fill="${INK}"${contour}>
     <path d="${pathL.toSVG()}"/>
     <path d="${pathW.toSVG()}"/>
   </g>
 </svg>
 `;
+}
+
+/** Calage optique : plus l'icône est petite, plus le dessin est robuste. */
+function optique(size) {
+  if (size <= 16) return { margin: 0.09, stroke: 1.5 };
+  if (size <= 32) return { margin: 0.11, stroke: 0.7 };
+  if (size <= 64) return { margin: 0.14, stroke: 0.2 };
+  return { margin: MARGIN, stroke: 0 };
+}
 
 mkdirSync(ASSETS, { recursive: true });
+
+const svg = buildSvg({ margin: MARGIN, stroke: 0 });
 writeFileSync(join(ASSETS, "logo.svg"), svg, "utf8");
 console.log(`écrit ${join(ASSETS, "logo.svg")}`);
 
 /* ---------- PNG ---------- */
 
-const buffer = Buffer.from(svg, "utf8");
 await Promise.all(
   SIZES.map(async (size) => {
     const file = join(ASSETS, `icon-${size}.png`);
-    await sharp(buffer, { density: 384 }).resize(size, size).png({ compressionLevel: 9 }).toFile(file);
+    const buffer = Buffer.from(buildSvg(optique(size)), "utf8");
+    await sharp(buffer, { density: 768 }).resize(size, size).png({ compressionLevel: 9 }).toFile(file);
     console.log(`écrit ${file}`);
   })
 );
