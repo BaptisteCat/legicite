@@ -1,0 +1,378 @@
+/* ==========================================================================
+   LÉGIWORD · feuille propre à l'extension
+   --------------------------------------------------------------------------
+   À charger APRÈS juritel-design.css et addin.css. Ne contient que ce que le
+   kit ne couvre pas : les onglets du volet, les encarts de message, l'aperçu
+   d'un article, et la mise en page de la fenêtre de réglages.
+
+   Règle de la charte : aucune couleur, ombre, rayon ou police en dur. Tout
+   passe par les jetons --jt-*, ce qui donne le thème sombre sans travail.
+
+   Ce qui vient du kit et n'est donc PAS redéfini ici : .top-bar, .brand,
+   .card, .row, .btn, .mini, .icon-btn, .link-btn, les champs, .toast,
+   .modal-*, .jt-hint, .jt-overline, .jt-label, .jt-status, .jt-panel.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. VOLET · structure
+   ========================================================================== */
+
+/* Zone défilante sous les onglets. `main` reçoit déjà ses marges d'addin.css. */
+.view { flex: 1; overflow-y: auto; }
+
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+/* L'en-tête du kit mord sur les marges de `main` : on la neutralise ici,
+   le volet ayant sa propre colonne défilante. */
+.top-bar { margin-bottom: 0; }
+
+/* Indicateur de connexion : la pastille du kit, resserrée pour tenir dans
+   320 px à côté du nom de marque. */
+.top-actions .jt-status {
+  padding: 4px 9px;
+  font-size: 11px;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+/* ---------- Onglets ---------- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--jt-line);
+}
+.tab {
+  flex: 1;
+  padding: 8px 4px 9px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--jt-ink-3);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  cursor: pointer;
+  transition: color .18s var(--jt-ease), border-color .18s var(--jt-ease);
+}
+.tab:hover { color: var(--jt-ink-2); }
+.tab[aria-selected="true"] {
+  color: var(--jt-accent);
+  border-bottom-color: var(--jt-accent);
+}
+.tab:focus-visible { outline: 2px solid var(--jt-accent); outline-offset: -2px; }
+
+
+/* ==========================================================================
+   2. UTILITAIRES DE PILE
+   ========================================================================== */
+.stack > * + * { margin-top: 12px; }
+.stack-tight > * + * { margin-top: 6px; }
+
+
+/* ==========================================================================
+   3. CARTES · compléments au .card du kit
+   ========================================================================== */
+.card + .card { margin-top: 8px; }
+.card__title {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -.012em;
+  color: var(--jt-ink);
+}
+.card__meta {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--jt-ink-3);
+  line-height: 1.5;
+}
+.card--clickable { cursor: pointer; transition: all .2s var(--jt-ease); }
+.card--clickable:hover {
+  box-shadow: var(--jt-shadow-m);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--jt-accent) 35%, var(--jt-line));
+}
+.card--clickable:focus-visible { outline: 2px solid var(--jt-accent); outline-offset: 2px; }
+
+
+/* ==========================================================================
+   4. ENCARTS DE MESSAGE
+   Quatre intentions, prises dans les jetons d'état du kit.
+   ========================================================================== */
+.notice {
+  padding: 9px 11px;
+  border-radius: var(--jt-r-md);
+  border: 1px solid transparent;
+  font-size: 12px;
+  line-height: 1.55;
+  letter-spacing: -.005em;
+}
+.notice--info {
+  background: color-mix(in srgb, var(--jt-accent) 7%, transparent);
+  border-color: color-mix(in srgb, var(--jt-accent) 18%, transparent);
+  color: var(--jt-ink);
+}
+.notice--ok {
+  background: var(--jt-ok-bg);
+  border-color: color-mix(in srgb, var(--jt-ok) 22%, transparent);
+  color: var(--jt-ok);
+}
+.notice--warn {
+  background: var(--jt-amber-bg);
+  border-color: color-mix(in srgb, var(--jt-amber) 22%, transparent);
+  color: var(--jt-amber);
+}
+.notice--error {
+  background: var(--jt-ko-bg);
+  border-color: color-mix(in srgb, var(--jt-ko) 22%, transparent);
+  color: var(--jt-ko);
+}
+
+
+/* ==========================================================================
+   5. APERÇU D'UN ARTICLE
+   ========================================================================== */
+.preview {
+  border: 1px solid var(--jt-line);
+  border-radius: var(--jt-r-lg);
+  padding: 11px 12px;
+  background: var(--jt-card);
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--jt-ink);
+}
+.preview p { margin: 0 0 8px; }
+.preview p:last-child { margin-bottom: 0; }
+.preview ul, .preview ol { margin: 0 0 8px; padding-left: 20px; }
+.preview table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+.preview td, .preview th {
+  border: 1px solid var(--jt-line);
+  padding: 3px 5px;
+  text-align: left;
+}
+.preview th { background: var(--jt-card-2); font-weight: 650; }
+
+
+/* ==========================================================================
+   6. ATTENTE
+   ========================================================================== */
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--jt-line);
+  border-top-color: var(--jt-accent);
+  border-radius: var(--jt-r-pill);
+  animation: legiword-spin .7s linear infinite;
+  vertical-align: -2px;
+  margin-right: 6px;
+  flex: none;
+}
+@keyframes legiword-spin { to { transform: rotate(360deg); } }
+
+
+/* ==========================================================================
+   7. TABLEAUX DE RÉGLAGES
+   ========================================================================== */
+.table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table th {
+  padding: 4px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--jt-ink-3);
+}
+.table td { padding: 4px; border-top: 1px solid var(--jt-line); color: var(--jt-ink-2); }
+.table code {
+  font-size: 11.5px;
+  color: var(--jt-ink);
+  background: var(--jt-card-2);
+  padding: 1px 5px;
+  border-radius: var(--jt-r-xs);
+}
+
+
+/* ==========================================================================
+   8. PASTILLES D'ÉTAT · vérification du document
+   ========================================================================== */
+.status {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: var(--jt-r-pill);
+  margin-right: 7px;
+  vertical-align: 1px;
+  background: var(--jt-ink-3);
+  flex: none;
+}
+.status--abroge { background: var(--jt-ko); }
+.status--modifieRecemment { background: var(--jt-amber); }
+.status--vigueur { background: var(--jt-ok); }
+
+
+/* ==========================================================================
+   9. FENÊTRE DE RÉGLAGES
+   Une fenêtre respire davantage que le volet (charte : base 14,5–16 px).
+   ========================================================================== */
+body.dialog { font-size: 14px; height: 100vh; overflow: hidden; }
+
+.dialog__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--jt-line);
+  background: color-mix(in srgb, var(--jt-bg) 76%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+}
+.dialog__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: -.02em;
+  background: var(--jt-title-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: var(--jt-title-color);
+}
+
+.dialog__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  height: calc(100vh - 58px);
+}
+.dialog__form { overflow-y: auto; padding: 16px 18px 28px; }
+.dialog__preview {
+  border-left: 1px solid var(--jt-line);
+  overflow-y: auto;
+  background: var(--jt-card-2);
+}
+.dialog__preview-inner { padding: 16px 18px; }
+
+/* Fenêtre étroite, ou repliée dans le volet sous Word pour le web. */
+@media (max-width: 900px) {
+  .dialog__body { grid-template-columns: minmax(0, 1fr); height: calc(100vh - 58px); }
+  .dialog__preview { display: none; }
+}
+
+/* ---------- Sections repliables ---------- */
+.section {
+  border: 1px solid var(--jt-line);
+  border-radius: var(--jt-r-lg);
+  background: var(--jt-card);
+  margin-bottom: 10px;
+  box-shadow: var(--jt-shadow-s);
+}
+.section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  background: none;
+  border: none;
+  border-radius: var(--jt-r-lg);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -.012em;
+  text-align: left;
+  color: var(--jt-ink);
+  cursor: pointer;
+  transition: background .18s var(--jt-ease);
+}
+.section__head:hover { background: var(--jt-card-2); }
+.section__head:focus-visible { outline: 2px solid var(--jt-accent); outline-offset: -2px; }
+.section__chevron { color: var(--jt-ink-3); display: inline-grid; place-items: center; }
+.section__body { padding: 0 14px 14px; }
+
+/* ---------- Grille de contrôles ---------- */
+.controls { display: grid; gap: 11px; }
+.controls--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.control > label { display: block; margin-bottom: 4px; }
+
+/* ---------- Cases à cocher ---------- */
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--jt-ink);
+}
+.check input { margin-top: 2px; flex: none; }
+.check__hint {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  color: var(--jt-ink-3);
+  line-height: 1.5;
+}
+.check--disabled { opacity: .45; cursor: default; }
+
+/* ---------- Présélections ---------- */
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.preset {
+  padding: 6px 11px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--jt-r-pill);
+  background: var(--jt-card-2);
+  color: var(--jt-ink-2);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -.008em;
+  cursor: pointer;
+  transition: all .18s var(--jt-ease);
+}
+.preset:hover {
+  color: var(--jt-ink);
+  border-color: color-mix(in srgb, var(--jt-accent) 40%, var(--jt-line));
+  transform: translateY(-1px);
+}
+.preset[aria-pressed="true"] {
+  background: var(--jt-grad);
+  border-color: transparent;
+  color: var(--jt-cta-ink);
+  box-shadow: 0 3px 12px var(--jt-glow);
+}
+.preset:focus-visible { outline: 2px solid var(--jt-accent); outline-offset: 2px; }
+
+/* ---------- Aperçu de la citation ----------
+   Évoque une page de document sans imiter une police d'utilisateur qu'on ne
+   peut pas connaître : surface du kit, texte du kit. */
+.sheet {
+  background: var(--jt-card);
+  color: var(--jt-ink);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--jt-r-lg);
+  padding: 15px 16px;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  box-shadow: var(--jt-shadow-s);
+  min-height: 120px;
+}
+.sheet p { margin: 0; }
+.sheet .footnote {
+  margin-top: 14px;
+  padding-top: 7px;
+  border-top: 1px solid var(--jt-line);
+  font-size: 11.5px;
+  color: var(--jt-ink-2);
+}
+
+/* Le toast du kit est calé sur la largeur du volet : dans la fenêtre, on le
+   recentre plutôt que de l'étirer sur toute la largeur. */
+body.dialog .toast { left: 50%; right: auto; transform: translate(-50%, 8px); max-width: 420px; }
+body.dialog .toast.show { transform: translate(-50%, 0); }

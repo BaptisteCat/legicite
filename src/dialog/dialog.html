@@ -4,19 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LégiWord — Réglages</title>
+
+    <!-- Même ordre que le volet : jetons, coquille, feuille propre. -->
+    <link rel="stylesheet" href="juritel-design.css" />
+    <link rel="stylesheet" href="addin.css" />
+    <link rel="stylesheet" href="legiword.css" />
+
     <!--
       Office.js doit imperativement etre charge depuis le CDN Microsoft, non
       versionne : un attribut integrity casserait la page a la premiere mise a
       jour du fichier par Microsoft.
     -->
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <!-- Même data-key que le volet : la fenêtre suit son thème. -->
+    <script src="theme.js" data-key="legiword.theme"></script>
+    <script src="icons.js"></script>
   </head>
+
   <body class="dialog">
     <header class="dialog__bar">
-      <div class="brand">Réglages de LégiWord</div>
+      <p class="dialog__title">Réglages</p>
       <div class="row">
-        <button id="cancel" type="button">Fermer sans enregistrer</button>
-        <button id="save" class="primary" type="button">Enregistrer</button>
+        <button id="cancel" class="btn outline" type="button">Fermer sans enregistrer</button>
+        <button id="save" class="btn primary" type="button">Enregistrer</button>
       </div>
     </header>
 
@@ -24,13 +34,13 @@
       <main id="form" class="dialog__form"></main>
       <aside class="dialog__preview">
         <div class="dialog__preview-inner">
-          <div class="card__title">Aperçu</div>
-          <div class="card__meta">Article 111-1 du code pénal, tel qu'il sera inséré.</div>
+          <p class="jt-overline">Aperçu</p>
+          <p class="jt-hint">Article 111-1 du code pénal, tel qu'il sera inséré.</p>
           <div id="preview"></div>
         </div>
       </aside>
     </div>
 
-    <div id="toast" class="toast" hidden></div>
+    <div id="toast" class="toast"></div>
   </body>
 </html>

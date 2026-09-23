@@ -4,6 +4,17 @@
  * alourdirait le bundle charge par Word a chaque ouverture.
  */
 
+/**
+ * `JT` est pose par icons.js, charge par la page avant le bundle. Le kit n'est
+ * pas empaquete : il est servi tel quel pour que `sync-kit.js --check` puisse le
+ * comparer au kit d'origine, octet pour octet.
+ */
+declare const JT: {
+  icon(name: string, size?: number, strokeWidth?: number): string;
+  addIcons(more: Record<string, string>): void;
+  paintIcons(root?: ParentNode): void;
+};
+
 type Attrs = Record<string, string | number | boolean | ((event: Event) => void) | undefined>;
 type Child = Node | string | null | undefined | false;
 
@@ -51,16 +62,33 @@ export function mount(node: HTMLElement, ...children: Child[]): void {
   }
 }
 
+/**
+ * Icone Lucide du kit, posee dans un element.
+ *
+ * Seul jeu d'icones de la famille : jamais d'emoji, jamais un autre jeu.
+ * Le SVG vient de JT.icon(), qui peint en `currentColor`.
+ */
+export function icon(name: string, size = 14): HTMLElement {
+  const holder = el("span", { class: "ic-wrap" });
+  // innerHTML est sans danger ici : la chaine vient d'une table d'icones close,
+  // embarquee dans le kit, et `size` est un nombre. Rien de distant n'y entre —
+  // contrairement au contenu des articles, qui n'est jamais pose ainsi.
+  holder.innerHTML = JT.icon(name, size);
+  return holder;
+}
+
 let toastTimer: number | undefined;
 
 export function toast(message: string, ms = 3500): void {
   const node = document.getElementById("toast");
   if (!node) return;
   node.textContent = message;
-  node.hidden = false;
+  // Le toast du kit s'anime par la classe `show` : l'attribut `hidden` le
+  // ferait apparaitre sans transition.
+  node.classList.add("show");
   if (toastTimer) window.clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => {
-    node.hidden = true;
+    node.classList.remove("show");
   }, ms);
 }
 

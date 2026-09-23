@@ -10,8 +10,6 @@
  * messageParent, pour qu'il rafraichisse son etat en memoire sans attendre.
  */
 
-import "../taskpane/taskpane.css";
-import "./dialog.css";
 
 import { codeBySlug, allCodes } from "../core/abbreviations";
 import { htmlToBlocks } from "../core/html-to-blocks";
@@ -41,7 +39,7 @@ import {
   saveSettings,
   type Settings,
 } from "../settings/store";
-import { el, mount, notice, toast } from "../taskpane/dom";
+import { el, icon, mount, notice, toast } from "../taskpane/dom";
 
 /** Copie de travail : rien n'est enregistre avant un clic sur Enregistrer. */
 let draft: Settings = loadSettings();
@@ -219,7 +217,7 @@ function inheritable(
           onChange((event.target as HTMLInputElement).checked ? (options.min ?? 11) : null),
       }),
       input,
-      options.unit ? el("span", { class: "hint", text: options.unit }) : null,
+      options.unit ? el("span", { class: "jt-hint", text: options.unit }) : null,
     ]),
   ]);
 }
@@ -238,7 +236,9 @@ function section(id: string, title: string, body: () => Array<Node | null>): HTM
           render();
         },
       },
-      [el("span", { text: title }), el("span", { class: "section__chevron", text: open ? "▾" : "▸" })]
+      // Chevron Lucide : la charte n'admet aucun autre jeu d'icônes, ni caractère
+      // typographique en guise d'icône.
+      [el("span", { text: title }), el("span", { class: "section__chevron" }, [icon(open ? "down" : "right", 15)])]
     ),
     open ? el("div", { class: "section__body" }, [el("div", { class: "controls" }, body())]) : null,
   ]);
@@ -279,7 +279,7 @@ function render(): void {
           )
         ),
         el("div", {
-          class: "hint",
+          class: "jt-hint",
           text: active
             ? `Style identique à la présélection « ${PRESETS.find((p) => p.id === active)?.label} ».`
             : "Style personnalisé.",
@@ -368,7 +368,7 @@ function render(): void {
     /* --- Mise en forme --- */
     section("miseEnForme", "Mise en forme du bloc", () => [
       el("div", {
-        class: "hint",
+        class: "jt-hint",
         text:
           "Tout ce qui n'est pas coché suit le style du document d'accueil : c'est le comportement recommandé. " +
           "Le gras et l'italique font exception : ils sont toujours ceux réglés ci-dessus, jamais ceux hérités " +
@@ -492,7 +492,7 @@ function render(): void {
 
     /* --- /citart --- */
     section("citart", "Commande /citart", () => [
-      el("div", { class: "hint" }, [
+      el("div", { class: "jt-hint" }, [
         "Cite l'article annoncé par la phrase qui précède. On écrit ",
         el("code", { text: "L'article 121-5 du code pénal dispose que :" }),
         ", on passe à la ligne, on tape ",
@@ -528,14 +528,14 @@ function render(): void {
     /* --- Cache --- */
     section("cache", "Cache", () => [
       el("div", {
-        class: "hint",
+        class: "jt-hint",
         text: "Les articles consultés sont conservés localement pour ménager les quotas PISTE et permettre un usage hors ligne.",
       }),
       el("div", { class: "row" }, [
-        el("button", { type: "button", onclick: () => toast(`${purgeExpired()} entrée(s) expirée(s) supprimée(s).`) }, [
+        el("button", { class: "mini", type: "button", onclick: () => toast(`${purgeExpired()} entrée(s) expirée(s) supprimée(s).`) }, [
           "Purger les entrées expirées",
         ]),
-        el("button", { type: "button", onclick: () => toast(`${purgeAll()} entrée(s) supprimée(s).`) }, ["Tout vider"]),
+        el("button", { class: "mini", type: "button", onclick: () => toast(`${purgeAll()} entrée(s) supprimée(s).`) }, ["Tout vider"]),
       ]),
     ])
   );
@@ -557,7 +557,7 @@ function renderPiste(): Array<Node | null> {
   };
 
   return [
-    el("div", { class: "hint" }, [
+    el("div", { class: "jt-hint" }, [
       "Créez une application sur ",
       el("code", { text: "piste.gouv.fr" }),
       ", abonnez-la à l'API Légifrance et acceptez les CGU, puis collez ici le client ID et le secret.",
@@ -570,7 +570,7 @@ function renderPiste(): Array<Node | null> {
         "button",
         {
           type: "button",
-          class: "primary",
+          class: "btn primary",
           onclick: () => {
             capture();
             clearToken();
@@ -594,13 +594,13 @@ function renderPiste(): Array<Node | null> {
         },
         ["Tester la connexion"]
       ),
-      el("button", { type: "button", onclick: () => { capture(); toast("Identifiants pris en compte — n'oubliez pas d'enregistrer."); } }, [
+      el("button", { class: "mini", type: "button", onclick: () => { capture(); toast("Identifiants pris en compte — n'oubliez pas d'enregistrer."); } }, [
         "Appliquer",
       ]),
     ]),
     result,
     el("div", {
-      class: "hint",
+      class: "jt-hint",
       text:
         "L'API Légifrance accepte les appels directs depuis le navigateur : aucun relais n'est nécessaire. " +
         "Ne changez ce réglage que si votre réseau d'entreprise bloque les appels sortants.",
@@ -635,7 +635,7 @@ function renderAbbreviations(): Array<Node | null> {
         el(
           "button",
           {
-            class: "link",
+            class: "link-btn",
             type: "button",
             onclick: () =>
               update((d) => {
@@ -652,7 +652,7 @@ function renderAbbreviations(): Array<Node | null> {
 
   return [
     el("div", {
-      class: "hint",
+      class: "jt-hint",
       text: "Locales à ce poste, prioritaires sur les abréviations par défaut, et libres de les écraser.",
     }),
     el("div", { class: "row" }, [
@@ -661,6 +661,7 @@ function renderAbbreviations(): Array<Node | null> {
       el(
         "button",
         {
+          class: "mini",
           type: "button",
           onclick: () => {
             const key = normalizeCode(alias.value);
@@ -679,12 +680,13 @@ function renderAbbreviations(): Array<Node | null> {
           el("thead", {}, [el("tr", {}, [el("th", { text: "Saisie" }), el("th", { text: "Code" }), el("th", {})])]),
           el("tbody", {}, rows),
         ])
-      : el("div", { class: "hint", text: "Aucune abréviation personnelle." }),
+      : el("div", { class: "jt-hint", text: "Aucune abréviation personnelle." }),
     el("div", { class: "row" }, [
-      el("button", { type: "button", onclick: () => { zone.value = exportAbbreviations(draft); toast("Export généré ci-dessous."); } }, ["Exporter"]),
+      el("button", { class: "mini", type: "button", onclick: () => { zone.value = exportAbbreviations(draft); toast("Export généré ci-dessous."); } }, ["Exporter"]),
       el(
         "button",
         {
+          class: "mini",
           type: "button",
           onclick: () => {
             const outcome = importAbbreviations(zone.value);

@@ -53,6 +53,6 @@ export function renderBlocks(blocks: Block[]): HTMLElement {
     }
   }
 
-  if (!container.firstChild) container.appendChild(el("p", { class: "hint", text: "(contenu vide)" }));
+  if (!container.firstChild) container.appendChild(el("p", { class: "jt-hint", text: "(contenu vide)" }));
   return container;
 }

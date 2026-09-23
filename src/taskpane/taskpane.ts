@@ -10,7 +10,6 @@
  * d'un volet.
  */
 
-import "./taskpane.css";
 
 import { resolveCode, type CodeEntry } from "../core/abbreviations";
 import { countCharacters, firstAlineas, type Block } from "../core/blocks";
@@ -38,7 +37,7 @@ import {
   suspendWatcher,
 } from "../word/watcher";
 import { LegifranceError } from "../api/types";
-import { el, mount, notice, spinner, toast } from "./dom";
+import { el, icon, mount, notice, spinner, toast } from "./dom";
 import { renderBlocks } from "./preview";
 import { renderVerify } from "./verify-view";
 
@@ -95,11 +94,12 @@ function navigate(name: ViewName): void {
 function updateConnectionPill(): void {
   const pill = document.getElementById("connection");
   if (!pill) return;
+  // `.jt-status` du kit : pastille grise au repos, verte avec halo en `.is-on`.
   if (!isConfigured(settings)) {
-    pill.className = "pill pill--muted";
-    pill.textContent = "Non configuré";
+    pill.className = "jt-status";
+    pill.textContent = "À configurer";
   } else {
-    pill.className = "pill pill--ok";
+    pill.className = "jt-status is-on";
     pill.textContent = settings.piste.sandbox ? "Bac à sable" : "Connecté";
   }
 }
@@ -240,7 +240,7 @@ function renderSearch(): void {
     mount(
       root,
       notice("warn", "Renseignez vos identifiants PISTE pour interroger Légifrance."),
-      el("button", { class: "primary", onclick: () => openSettingsDialog() }, ["Ouvrir les réglages"])
+      el("button", { class: "btn primary", onclick: () => openSettingsDialog() }, ["Ouvrir les réglages"])
     );
     return;
   }
@@ -270,8 +270,8 @@ function renderSearch(): void {
       el("div", { id: "selection-banner", class: "stack-tight" }, selectionBannerChildren()),
       el("div", {}, [
         el("label", { for: "query", text: "Article à citer" }),
-        el("div", { class: "row" }, [input, el("button", { class: "primary", onclick: submit }, ["Chercher"])]),
-        el("div", { class: "hint" }, [
+        el("div", { class: "row" }, [input, el("button", { class: "btn primary", onclick: submit }, [icon("search", 14), "Chercher"])]),
+        el("div", { class: "jt-hint" }, [
           "Syntaxes : ",
           el("code", { text: "111-1 cpen" }),
           " · ",
@@ -281,7 +281,7 @@ function renderSearch(): void {
           " · ",
           el("code", { text: "/artv 1353 cciv 2020" }),
         ]),
-        el("div", { class: "hint" }, [
+        el("div", { class: "jt-hint" }, [
           el("code", { text: "/citart" }),
           " cite l'article annoncé par la phrase précédant le curseur, sans le renseigner.",
         ]),
@@ -301,7 +301,7 @@ async function runQuery(raw: string, container: HTMLElement): Promise<void> {
   const parsed = parseCommand(command);
 
   if (!parsed.ok) {
-    mount(container, notice("error", parsed.error), parsed.hint ? el("div", { class: "hint", text: parsed.hint }) : null);
+    mount(container, notice("error", parsed.error), parsed.hint ? el("div", { class: "jt-hint", text: parsed.hint }) : null);
     return;
   }
 
@@ -596,8 +596,8 @@ function renderResult(
     el("div", { class: "row" }, [
       el(
         "button",
-        { class: "primary", onclick: () => void doInsert(rendered.map((r) => r.blocks), rendered.map((r) => r.footnote)) },
-        [long ? "Insérer l'intégralité" : "Insérer"]
+        { class: "btn primary", onclick: () => void doInsert(rendered.map((r) => r.blocks), rendered.map((r) => r.footnote)) },
+        [icon("insert", 14), long ? "Insérer l'intégralité" : "Insérer"]
       ),
       long
         ? el(

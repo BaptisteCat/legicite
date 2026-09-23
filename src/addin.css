@@ -1,0 +1,241 @@
+/* ==========================================================================
+   KIT JURITEL · coquille d'extension Word                        v1 · 2026-09
+   --------------------------------------------------------------------------
+   Ce que TOUTES les extensions de la suite ont en commun : l'en-tête collant
+   en verre dépoli avec le nom de marque didone, les boutons, les champs, les
+   pop-up intégrées au volet, la notification éphémère, l'ascenseur.
+
+   À charger APRÈS juritel-design.css et AVANT la feuille propre à l'extension :
+     <link rel="stylesheet" href="juritel-design.css">
+     <link rel="stylesheet" href="addin.css">
+     <link rel="stylesheet" href="monextension.css">
+
+   Aucune couleur en dur : tout vient des jetons --jt-*, donc le thème sombre
+   est gratuit. Règle absolue de la charte : on n'écrit JAMAIS un #rrggbb ici
+   ni dans la feuille de l'extension.
+
+   CATALOGUE
+     En-tête     .top-bar  .top-left  .top-actions  .brand  .brand-initial
+     Boutons     .btn(.primary|.outline|.block)  .mini  .icon-btn(.sm|.close-x)  .link-btn
+     Champs      input, select, textarea (stylés d'office)
+     Structure   .card  .row  .muted  .hidden  .pad  .busy
+     Pop-up      .modal-overlay > .modal-card > .modal-title .modal-msg .modal-btns
+     Plein volet .pane-modal (fenêtre repliée dans le volet — Word pour le web)
+     Divers      .toast(.show)  .ic
+   ========================================================================== */
+
+/* Le volet est étroit (~320 px) : base plus dense que le kit (14,5 px). */
+body { font-size: 13px; }
+
+.hidden { display: none !important; }
+.muted { color: var(--jt-ink-3); font-weight: 450; }
+.pad { padding: 16px; }
+.busy { opacity: .6; pointer-events: none; }
+
+main { padding: 0 12px 16px; }
+section { margin-bottom: 14px; }
+
+.card {
+  background: var(--jt-card);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--jt-r-lg);
+  padding: 10px;
+  box-shadow: var(--jt-shadow-s);
+}
+
+.row { display: flex; gap: 6px; }
+.row input { flex: 1; }
+
+/* Icônes Lucide injectées en SVG (trait 2, currentColor) — taille par width/height */
+.ic { display: block; flex: none; }
+
+
+/* ---------- En-tête collant, verre dépoli ---------- */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  position: sticky; top: 0; z-index: 100;
+  margin: 0 -12px 12px; padding: 10px 12px;
+  background: color-mix(in srgb, var(--jt-bg) 76%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  border-bottom: 1px solid var(--jt-line);
+}
+.top-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.top-actions { display: flex; align-items: center; gap: 6px; }
+
+/* ---------- Nom de marque ----------
+   Signature de la famille : initiale calligraphiée (Monsieur La Doulaise) collée
+   au reste du mot en Playfair italique, le tout rempli par le dégradé de marque.
+     <span class="brand"><span class="brand-initial">L</span>exRef</span>
+   Une extension qui ne veut pas d'initiale calligraphiée omet simplement le
+   premier <span> : le mot reste en didone dégradé, la famille reste lisible. */
+.brand {
+  font-family: "Playfair Display", var(--jt-font-display); font-style: italic; font-weight: 600; font-size: 21px;
+  letter-spacing: -.01em; line-height: 1; white-space: nowrap;
+  background: var(--jt-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  /* marge intérieure : le dégradé n'est peint que dans la boîte, les boucles de
+     l'initiale doivent y tenir */
+  padding: 12px 4px 8px; margin: -12px -4px -8px;
+}
+.brand-initial {
+  font-family: "Monsieur La Doulaise", cursive; font-style: normal; font-weight: 400;
+  font-size: 36px; line-height: 0; margin-right: -3px; vertical-align: -3px;
+  /* trait épaissi de 0,2 px : sinon la calligraphie paraît maigre à côté du Playfair */
+  -webkit-text-stroke: 0.2px var(--jt-grad-a);
+  -webkit-text-stroke: 0.2px color-mix(in srgb, var(--jt-grad-a), var(--jt-grad-b));
+}
+
+
+/* ---------- Champs ---------- */
+input, select, textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1.5px solid var(--jt-line);
+  border-radius: 11px;
+  font-size: 13px; font-family: inherit; letter-spacing: -.011em;
+  background: var(--jt-card-2);
+  color: var(--jt-ink);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+input::placeholder, textarea::placeholder { color: var(--jt-ink-3); }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--jt-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--jt-accent) 12%, transparent);
+}
+input[type="checkbox"], input[type="radio"] { width: auto; accent-color: var(--jt-accent); }
+
+
+/* ---------- Boutons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--jt-line);
+  background: var(--jt-card);
+  color: var(--jt-ink);
+  border-radius: var(--jt-r-md);
+  padding: 8px 12px;
+  font-size: 12.5px; font-weight: 600; letter-spacing: -.01em; font-family: inherit;
+  cursor: pointer;
+  transition: all .18s var(--jt-ease);
+}
+.btn:hover { box-shadow: var(--jt-shadow-s); transform: translateY(-1px); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+/* Primaire : dégradé de marque et halo */
+.btn.primary {
+  background: var(--jt-grad); color: var(--jt-cta-ink); border-color: transparent;
+  box-shadow: 0 4px 14px var(--jt-glow); min-width: 38px;
+}
+.btn.primary:hover { box-shadow: 0 6px 20px var(--jt-glow); }
+/* « Contour » → bouton doux (surface en retrait, accent au survol) */
+.btn.outline { background: var(--jt-card-2); color: var(--jt-ink-2); }
+.btn.outline:hover {
+  border-color: color-mix(in srgb, var(--jt-accent) 40%, var(--jt-line));
+  color: var(--jt-ink);
+}
+.btn.block { display: flex; width: 100%; }
+
+/* Bouton discret en ligne de texte */
+.mini {
+  border: 1px solid transparent; background: var(--jt-card-2); color: var(--jt-ink-2);
+  border-radius: var(--jt-r-sm); padding: 5px 9px;
+  font-size: 11.5px; font-weight: 600; font-family: inherit; letter-spacing: -.008em;
+  cursor: pointer; transition: all .18s var(--jt-ease);
+}
+.mini:hover { background: var(--jt-line-2); color: var(--jt-ink); transform: translateY(-1px); }
+
+/* Lien-bouton : ressemble à un lien, se comporte comme un bouton */
+.link-btn {
+  border: none; background: none; padding: 0;
+  color: var(--jt-accent); font: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+}
+.link-btn:hover { text-decoration: underline; }
+
+/* Bouton icône carré (en-tête, aide, info) */
+.icon-btn {
+  width: 30px; height: 30px; padding: 0; flex: none;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--jt-line); border-radius: 10px;
+  background: var(--jt-card); color: var(--jt-ink-2);
+  font-size: 13px; font-weight: 700; line-height: 1; cursor: pointer;
+  transition: all .18s var(--jt-ease);
+}
+.icon-btn:hover {
+  color: var(--jt-ink); box-shadow: var(--jt-shadow-s); transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--jt-accent) 35%, var(--jt-line));
+}
+.icon-btn.sm { width: 26px; height: 26px; border-radius: 8px; }
+.icon-btn svg { display: block; }
+.icon-btn:disabled { opacity: .35; cursor: default; }
+.icon-btn:disabled:hover { transform: none; box-shadow: none; color: var(--jt-ink-2); border-color: var(--jt-line); }
+
+/* Croix de fermeture : neutre au repos, rouge au survol */
+.icon-btn.close-x:hover {
+  background: var(--jt-ko-bg); color: var(--jt-ko);
+  border-color: color-mix(in srgb, var(--jt-ko) 45%, var(--jt-line));
+}
+
+:is(.btn, .mini, .icon-btn, .link-btn):focus-visible {
+  outline: 2px solid var(--jt-accent); outline-offset: 2px;
+}
+
+
+/* ---------- Pop-up intégrée au volet : voile flouté + fenêtre ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: var(--jt-backdrop);
+  -webkit-backdrop-filter: blur(9px) saturate(.9); backdrop-filter: blur(9px) saturate(.9);
+  animation: modal-fade .15s ease-out;
+}
+@keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+.modal-card {
+  background: var(--jt-card); color: var(--jt-ink);
+  border-radius: var(--jt-r-xl); width: 100%; max-width: 310px;
+  box-shadow: var(--jt-shadow-l);
+  padding: 20px; animation: jt-reveal .25s var(--jt-ease);
+}
+.modal-title {
+  font-size: 16px; font-weight: 750; letter-spacing: -.02em; margin-bottom: 8px;
+  background: var(--jt-title-grad); -webkit-background-clip: text; background-clip: text; color: var(--jt-title-color);
+}
+.modal-msg { font-size: 12.5px; line-height: 1.5; color: var(--jt-ink-2); margin-bottom: 18px; }
+.modal-msg b { color: var(--jt-ink); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.modal-btns .btn { padding: 8px 14px; }
+
+
+/* ---------- Fenêtre repliée dans le volet (Word pour le web) ----------
+   Word pour le web n'ouvre pas toujours de vraie fenêtre : la page s'affiche
+   alors PAR-DESSUS le volet. z-index au-dessus de l'en-tête collant (100) et
+   du voile des pop-up (1000), sinon le nom de marque recouvre le haut de la page. */
+.pane-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: var(--jt-bg);
+  display: flex; flex-direction: column;
+  animation: jt-reveal .2s var(--jt-ease);
+}
+.pane-modal > iframe { flex: 1; width: 100%; border: 0; }
+
+
+/* ---------- Notification éphémère : dégradé de marque ---------- */
+.toast {
+  position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 50;
+  background: var(--jt-grad); color: var(--jt-cta-ink);
+  padding: 10px 14px; border-radius: 14px;
+  font-size: 12.5px; font-weight: 550; letter-spacing: -.01em; text-align: center;
+  box-shadow: 0 8px 26px var(--jt-glow), var(--jt-shadow-l);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .25s var(--jt-ease), transform .25s var(--jt-ease);
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+
+/* ---------- Ascenseur discret ---------- */
+html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--jt-ink-3) 45%, transparent) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--jt-ink-3) 42%, transparent);
+  border: 3px solid transparent; background-clip: content-box; border-radius: 999px;
+}

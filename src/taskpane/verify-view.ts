@@ -11,7 +11,7 @@ import { isConfigured, type Settings } from "../settings/store";
 import { getParagraphs, selectParagraph } from "../word/selection";
 import { sortFindings, verifyDocument, type Finding, type FindingStatus } from "../services/verify";
 import { LegifranceError } from "../api/types";
-import { el, mount, notice, toast } from "./dom";
+import { el, icon, mount, notice, toast } from "./dom";
 
 const STATUS_LABEL: Record<FindingStatus, string> = {
   abroge: "Abrogé",
@@ -38,7 +38,7 @@ export function renderVerify(root: HTMLElement, getSettings: () => Settings): vo
     mount(output, notice("info", "Lecture du document…"));
     try {
       const paragraphs = await getParagraphs();
-      const progress = el("div", { class: "hint", text: "Analyse…" });
+      const progress = el("div", { class: "jt-hint", text: "Analyse…" });
       mount(output, progress);
 
       const findings = await verifyDocument(getSettings(), paragraphs, {
@@ -57,12 +57,12 @@ export function renderVerify(root: HTMLElement, getSettings: () => Settings): vo
   mount(
     root,
     el("div", { class: "stack" }, [
-      el("div", { class: "hint" }, [
+      el("div", { class: "jt-hint" }, [
         "La vérification indique l'état ACTUEL de chaque article visé. Elle ne peut pas dire si le texte cité ",
         "correspondait à la version en vigueur au moment de la rédaction : cette information n'existe pas dans le fichier.",
       ]),
       el("label", { class: "row" }, [includeValid, el("span", { text: " Afficher aussi les articles en vigueur" })]),
-      el("button", { class: "primary", onclick: () => void run() }, ["Vérifier le document"]),
+      el("button", { class: "btn primary", onclick: () => void run() }, [icon("check", 14), "Vérifier le document"]),
       output,
     ])
   );
@@ -99,7 +99,7 @@ function renderFindings(container: HTMLElement, findings: Finding[], includeVali
       `${findings.length} référence(s) analysée(s) — ${summary.join(", ")}.`
     ),
     ...(shown.length === 0
-      ? [el("div", { class: "hint", text: "Rien à signaler." })]
+      ? [el("div", { class: "jt-hint", text: "Rien à signaler." })]
       : shown.map((finding) =>
           el(
             "div",
