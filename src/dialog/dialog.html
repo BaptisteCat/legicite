@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LégiWord — Réglages</title>
+    <!--
+      Office.js doit imperativement etre charge depuis le CDN Microsoft, non
+      versionne : un attribut integrity casserait la page a la premiere mise a
+      jour du fichier par Microsoft.
+    -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  </head>
+  <body class="dialog">
+    <header class="dialog__bar">
+      <div class="brand">Réglages de LégiWord</div>
+      <div class="row">
+        <button id="cancel" type="button">Fermer sans enregistrer</button>
+        <button id="save" class="primary" type="button">Enregistrer</button>
+      </div>
+    </header>
+
+    <div class="dialog__body">
+      <main id="form" class="dialog__form"></main>
+      <aside class="dialog__preview">
+        <div class="dialog__preview-inner">
+          <div class="card__title">Aperçu</div>
+          <div class="card__meta">Article 111-1 du code pénal, tel qu'il sera inséré.</div>
+          <div id="preview"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+  </body>
+</html>

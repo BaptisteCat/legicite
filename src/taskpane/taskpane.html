@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LégiWord</title>
+    <!--
+      Office.js doit imperativement etre charge depuis le CDN Microsoft, non
+      versionne et mis a jour en continu : c'est la seule methode supportee.
+      Un attribut integrity casserait l'add-in a la premiere mise a jour du
+      fichier par Microsoft ; l'absence de SRI est donc ici delibere.
+    -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="topbar">
+        <div class="brand">LégiWord</div>
+        <div class="row">
+          <div id="connection" class="pill pill--muted">Non configuré</div>
+          <button id="settings" class="icon-button" type="button" title="Réglages" aria-label="Réglages">⚙</button>
+        </div>
+      </header>
+
+      <nav class="tabs" id="tabs">
+        <button class="tab" data-view="search" type="button">Citer</button>
+        <button class="tab" data-view="verify" type="button">Vérifier</button>
+      </nav>
+
+      <main id="view" class="view"></main>
+
+      <div id="toast" class="toast" hidden></div>
+    </div>
+  </body>
+</html>

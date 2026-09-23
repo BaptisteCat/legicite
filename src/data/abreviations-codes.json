@@ -1,0 +1,80 @@
+{
+  "version": 2,
+  "description": "Table d'abréviations. Deux systèmes distincts : 'alias' = ce que l'utilisateur TAPE (normalisé : minuscules, sans accents, points, espaces ni tirets) ; 'abrevAffichage' = ce qui est ÉCRIT dans le document par les modèles inline et note.",
+  "resolutionLegitext": "Les identifiants LEGITEXT ne sont volontairement pas codés en dur. Ils sont récupérés au premier lancement via l'API Légifrance (liste des codes), mis en cache localement, puis rafraîchis périodiquement. Un identifiant figé dans le code risquerait de devenir faux ou incomplet.",
+  "styleAffichage": "Valeurs par défaut inspirées des usages Dalloz. Entièrement modifiables dans les réglages : à recaler sur le style maison du cabinet.",
+
+  "codes": [
+    { "slug": "cciv",     "nom": "Code civil",                                                       "abrevAffichage": "C. civ.",             "alias": ["cciv", "ccivil", "civ", "codecivil"] },
+    { "slug": "cpen",     "nom": "Code pénal",                                                       "abrevAffichage": "C. pén.",             "alias": ["cpen", "cpenal", "pen", "codepenal"] },
+    { "slug": "cpc",      "nom": "Code de procédure civile",                                         "abrevAffichage": "CPC",                 "alias": ["cpc", "ncpc", "cprocciv", "codedeprocedurecivile"] },
+    { "slug": "cpp",      "nom": "Code de procédure pénale",                                         "abrevAffichage": "CPP",                 "alias": ["cpp", "cprocpen", "codedeprocedurepenale"] },
+    { "slug": "ctrav",    "nom": "Code du travail",                                                  "abrevAffichage": "C. trav.",            "alias": ["ctrav", "ctravail", "trav", "codedutravail"] },
+    { "slug": "ccom",     "nom": "Code de commerce",                                                 "abrevAffichage": "C. com.",             "alias": ["ccom", "ccommerce", "codedecommerce"] },
+    { "slug": "coj",      "nom": "Code de l'organisation judiciaire",                                "abrevAffichage": "COJ",                 "alias": ["coj", "corgjud"] },
+    { "slug": "cgi",      "nom": "Code général des impôts",                                          "abrevAffichage": "CGI",                 "alias": ["cgi", "cgimpots", "codegeneraldesimpots"] },
+    { "slug": "lpf",      "nom": "Livre des procédures fiscales",                                    "abrevAffichage": "LPF",                 "alias": ["lpf", "livredesproceduresfiscales"] },
+    { "slug": "cconso",   "nom": "Code de la consommation",                                          "abrevAffichage": "C. consom.",          "alias": ["cconso", "cconsom", "cconsommation", "codedelaconsommation"] },
+    { "slug": "cmf",      "nom": "Code monétaire et financier",                                      "abrevAffichage": "C. mon. fin.",        "alias": ["cmf", "comofi", "cmonfin", "codemonetaireetfinancier"] },
+    { "slug": "cpi",      "nom": "Code de la propriété intellectuelle",                              "abrevAffichage": "CPI",                 "alias": ["cpi", "cpropintel"] },
+    { "slug": "cassur",   "nom": "Code des assurances",                                              "abrevAffichage": "C. assur.",           "alias": ["cassur", "cassurances", "codedesassurances"] },
+    { "slug": "csp",      "nom": "Code de la santé publique",                                        "abrevAffichage": "CSP",                 "alias": ["csp", "csantepublique"] },
+    { "slug": "css",      "nom": "Code de la sécurité sociale",                                      "abrevAffichage": "CSS",                 "alias": ["css", "csecu", "csecsoc", "csecuritesociale"] },
+    { "slug": "casf",     "nom": "Code de l'action sociale et des familles",                         "abrevAffichage": "CASF",                "alias": ["casf", "cactsoc"] },
+    { "slug": "cenv",     "nom": "Code de l'environnement",                                          "abrevAffichage": "C. env.",             "alias": ["cenv", "cenvironnement"] },
+    { "slug": "curb",     "nom": "Code de l'urbanisme",                                              "abrevAffichage": "C. urb.",             "alias": ["curb", "curba", "curbanisme"] },
+    { "slug": "cch",      "nom": "Code de la construction et de l'habitation",                       "abrevAffichage": "CCH",                 "alias": ["cch", "cconsthab"] },
+    { "slug": "cja",      "nom": "Code de justice administrative",                                   "abrevAffichage": "CJA",                 "alias": ["cja", "cjustadm"] },
+    { "slug": "crpa",     "nom": "Code des relations entre le public et l'administration",           "abrevAffichage": "CRPA",                "alias": ["crpa"] },
+    { "slug": "cgct",     "nom": "Code général des collectivités territoriales",                     "abrevAffichage": "CGCT",                "alias": ["cgct", "ccollter"] },
+    { "slug": "cg3p",     "nom": "Code général de la propriété des personnes publiques",             "abrevAffichage": "CG3P",                "alias": ["cg3p", "cgppp"] },
+    { "slug": "ccp",      "nom": "Code de la commande publique",                                     "abrevAffichage": "CCP",                 "alias": ["ccp", "ccommandepublique"] },
+    { "slug": "ceseda",   "nom": "Code de l'entrée et du séjour des étrangers et du droit d'asile",  "abrevAffichage": "CESEDA",              "alias": ["ceseda", "cesada"] },
+    { "slug": "csi",      "nom": "Code de la sécurité intérieure",                                   "abrevAffichage": "CSI",                 "alias": ["csi", "csecint"] },
+    { "slug": "croute",   "nom": "Code de la route",                                                 "abrevAffichage": "C. route",            "alias": ["croute", "cdelaroute", "codedelaroute"] },
+    { "slug": "cedu",     "nom": "Code de l'éducation",                                              "abrevAffichage": "C. éduc.",            "alias": ["cedu", "ceduc", "ceducation"] },
+    { "slug": "csport",   "nom": "Code du sport",                                                    "abrevAffichage": "C. sport",            "alias": ["csport", "cdusport"] },
+    { "slug": "crpm",     "nom": "Code rural et de la pêche maritime",                               "abrevAffichage": "C. rur.",             "alias": ["crpm", "crur", "crural"] },
+    { "slug": "cdouanes", "nom": "Code des douanes",                                                 "abrevAffichage": "C. douanes",          "alias": ["cdouanes", "cdouane", "cdo"] },
+    { "slug": "cpcex",    "nom": "Code des procédures civiles d'exécution",                          "abrevAffichage": "C. pr. civ. exéc.",   "alias": ["cpcex", "cpcexec", "cproccivexec"] },
+    { "slug": "cpost",    "nom": "Code des postes et des communications électroniques",              "abrevAffichage": "CPCE",                "alias": ["cpost", "cpostes", "cpcelec"] },
+    { "slug": "cjpm",     "nom": "Code de la justice pénale des mineurs",                            "abrevAffichage": "CJPM",                "alias": ["cjpm"] },
+    { "slug": "cpenit",   "nom": "Code pénitentiaire",                                               "abrevAffichage": "C. pénit.",           "alias": ["cpenit", "cpenitentiaire"] },
+    { "slug": "cdef",     "nom": "Code de la défense",                                               "abrevAffichage": "C. déf.",             "alias": ["cdef", "cdefense"] },
+    { "slug": "cjm",      "nom": "Code de justice militaire",                                        "abrevAffichage": "CJM",                 "alias": ["cjm", "cjustmil"] },
+    { "slug": "cgfp",     "nom": "Code général de la fonction publique",                             "abrevAffichage": "CGFP",                "alias": ["cgfp", "cfp", "cfonctpub"] },
+    { "slug": "cjf",      "nom": "Code des juridictions financières",                                "abrevAffichage": "CJF",                 "alias": ["cjf", "cjurfin"] },
+    { "slug": "celect",   "nom": "Code électoral",                                                   "abrevAffichage": "C. élect.",           "alias": ["celect", "celectoral"] },
+    { "slug": "cpatr",    "nom": "Code du patrimoine",                                               "abrevAffichage": "C. patr.",            "alias": ["cpatr", "cpatrimoine"] },
+    { "slug": "cener",    "nom": "Code de l'énergie",                                                "abrevAffichage": "C. énergie",          "alias": ["cener", "cenergie"] },
+    { "slug": "ctransp",  "nom": "Code des transports",                                              "abrevAffichage": "C. transp.",          "alias": ["ctransp", "ctransports"] },
+    { "slug": "ctour",    "nom": "Code du tourisme",                                                 "abrevAffichage": "C. tourisme",         "alias": ["ctour", "ctourisme"] },
+    { "slug": "cminier",  "nom": "Code minier",                                                      "abrevAffichage": "C. minier",           "alias": ["cminier", "cmin"] },
+    { "slug": "cforest",  "nom": "Code forestier",                                                   "abrevAffichage": "C. forestier",        "alias": ["cforest", "cforestier"] },
+    { "slug": "cmut",     "nom": "Code de la mutualité",                                             "abrevAffichage": "C. mut.",             "alias": ["cmut", "cmutualite"] },
+    { "slug": "cvr",      "nom": "Code de la voirie routière",                                       "abrevAffichage": "C. voirie routière",  "alias": ["cvr", "cvoirie"] },
+    { "slug": "cibs",     "nom": "Code des impositions sur les biens et services",                   "abrevAffichage": "CIBS",                "alias": ["cibs"] }
+  ],
+
+  "ambigus": {
+    "commentaire": "Saisies qui ne doivent JAMAIS être résolues automatiquement : le volet affiche la liste de choix.",
+    "entrees": {
+      "cc":   ["cciv", "ccom", "cconso"],
+      "cpce": ["cpcex", "cpost"],
+      "cp":   ["cpen", "cpc", "cpatr"],
+      "cs":   ["csp", "css", "csport", "csi"],
+      "ce":   ["cedu", "cenv", "cener"],
+      "cca":  ["cassur", "casf"]
+    }
+  },
+
+  "abrogesRediriges": {
+    "commentaire": "Abréviations d'usage renvoyant à un code abrogé : on résout vers le code en vigueur en affichant un avertissement.",
+    "entrees": {
+      "cmp": {
+        "vers": "ccp",
+        "message": "Le code des marchés publics est abrogé depuis le 1er avril 2019 ; il est remplacé par le code de la commande publique."
+      }
+    }
+  }
+}

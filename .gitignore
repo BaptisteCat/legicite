@@ -1,0 +1,6 @@
+node_modules/
+*.log
+.env
+.DS_Store
+
+# docs/ est la sortie du build ET la source de GitHub Pages : elle est versionnee.

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Manifeste XML « add-in only ».
+
+  Ce format est impose par le menu contextuel : l'ExtensionPoint de type
+  ContextMenu n'existe pas dans le manifeste unifie. C'est la contrainte
+  identifiee au cadrage (cahier des charges, §3).
+
+  Les URL pointent vers GitHub Pages, qui sert le dossier docs/ de la branche
+  main. L'extension ne depend d'aucun serveur : elle appelle l'API Legifrance
+  directement depuis le navigateur, celle-ci acceptant le CORS depuis
+  n'importe quelle origine.
+-->
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+  xsi:type="TaskPaneApp">
+
+  <Id>5297a284-1216-4fd6-864a-8d21bfcaa5e7</Id>
+  <!-- Office refuse toute version inferieure a 1.0.0.0, independamment de la
+       maturite reelle du produit (package.json reste en 0.x). -->
+  <Version>1.0.0.0</Version>
+  <ProviderName>LégiWord</ProviderName>
+  <DefaultLocale>fr-FR</DefaultLocale>
+  <DisplayName DefaultValue="LégiWord" />
+  <Description DefaultValue="Citer et consulter les articles de loi français depuis Word, via l'API Légifrance." />
+  <IconUrl DefaultValue="https://baptistecat.github.io/legiword/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://baptistecat.github.io/legiword/assets/icon-80.png" />
+  <SupportUrl DefaultValue="https://baptistecat.github.io/legiword/" />
+
+  <AppDomains>
+    <AppDomain>https://baptistecat.github.io</AppDomain>
+    <AppDomain>https://localhost:3000</AppDomain>
+    <AppDomain>https://api.piste.gouv.fr</AppDomain>
+    <AppDomain>https://oauth.piste.gouv.fr</AppDomain>
+    <AppDomain>https://sandbox-api.piste.gouv.fr</AppDomain>
+    <AppDomain>https://sandbox-oauth.piste.gouv.fr</AppDomain>
+    <AppDomain>https://www.legifrance.gouv.fr</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Document" />
+  </Hosts>
+
+  <!--
+    Declaration des jeux d'API requis. Techniquement optionnelle au schema,
+    mais tous les add-ins qui se chargent correctement sur ce poste la
+    fournissent ; sans elle Word peut ecarter le complement.
+    1.3 est le socle : les fonctions exigeant 1.5 (notes de bas de page) et
+    1.6 (declencheur a la frappe) sont testees a l'execution et degradent
+    proprement si elles manquent.
+  -->
+  <Requirements>
+    <Sets DefaultMinVersion="1.3">
+      <Set Name="WordApi" MinVersion="1.3" />
+    </Sets>
+  </Requirements>
+
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://baptistecat.github.io/legiword/taskpane.html" />
+  </DefaultSettings>
+
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title" />
+            <Description resid="GetStarted.Description" />
+            <LearnMoreUrl resid="Taskpane.Url" />
+          </GetStarted>
+
+          <FunctionFile resid="Taskpane.Url" />
+
+          <!-- Ruban : onglet Accueil -->
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="LegiWord.Group">
+                <Label resid="Group.Label" />
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16" />
+                  <bt:Image size="32" resid="Icon.32" />
+                  <bt:Image size="80" resid="Icon.80" />
+                </Icon>
+
+                <!--
+                  Un seul bouton : toutes les fonctions (citer, verifier,
+                  reglages) vivent dans les onglets du volet lateral.
+                -->
+                <Control xsi:type="Button" id="LegiWord.Open">
+                  <Label resid="Open.Label" />
+                  <Supertip>
+                    <Title resid="Open.Label" />
+                    <Description resid="Open.Tip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16" />
+                    <bt:Image size="32" resid="Icon.32" />
+                    <bt:Image size="80" resid="Icon.80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>LegiWordTaskpane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+
+          <!--
+            Menu contextuel sur une selection de texte.
+            ContextMenuText s'affiche au clic droit lorsque du texte est
+            selectionne : c'est exactement le parcours voulu.
+          -->
+          <ExtensionPoint xsi:type="ContextMenu">
+            <OfficeMenu id="ContextMenuText">
+              <Control xsi:type="Button" id="LegiWord.Consult">
+                <Label resid="Consult.Label" />
+                <Supertip>
+                  <Title resid="Consult.Label" />
+                  <Description resid="Consult.Tip" />
+                </Supertip>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16" />
+                  <bt:Image size="32" resid="Icon.32" />
+                  <bt:Image size="80" resid="Icon.80" />
+                </Icon>
+                <Action xsi:type="ShowTaskpane">
+                  <TaskpaneId>LegiWordTaskpane</TaskpaneId>
+                  <SourceLocation resid="Taskpane.Url" />
+                </Action>
+              </Control>
+            </OfficeMenu>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://baptistecat.github.io/legiword/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="https://baptistecat.github.io/legiword/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="https://baptistecat.github.io/legiword/assets/icon-80.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://baptistecat.github.io/legiword/taskpane.html" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="Group.Label" DefaultValue="LégiWord" />
+        <bt:String id="Open.Label" DefaultValue="Ouvrir le volet" />
+        <bt:String id="Consult.Label" DefaultValue="Consulter dans LégiWord" />
+        <bt:String id="GetStarted.Title" DefaultValue="LégiWord est installé" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="Open.Tip" DefaultValue="Ouvre le volet LégiWord : citer un article, vérifier le document, réglages." />
+        <bt:String id="Consult.Tip" DefaultValue="Affiche dans le volet l'article visé par le texte sélectionné." />
+        <bt:String id="GetStarted.Description" DefaultValue="Renseignez vos identifiants PISTE dans les réglages du volet pour commencer." />
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
