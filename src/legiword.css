@@ -23,9 +23,26 @@
 
 #app { display: flex; flex-direction: column; height: 100vh; }
 
-/* L'en-tête du kit mord sur les marges de `main` : on la neutralise ici,
-   le volet ayant sa propre colonne défilante. */
-.top-bar { margin-bottom: 0; }
+/*
+ * Ajustements de l'en-tête du kit à notre structure.
+ *
+ * `.top-bar` porte `margin: 0 -12px` : elle est prévue pour un conteneur ayant
+ * 12 px de marge intérieure, dont elle annule le retrait pour aller bord à
+ * bord. Comme le gabarit du kit, notre en-tête vit hors de `main`, dans un
+ * `#app` sans marge : les marges négatives déborderaient donc de la fenêtre.
+ * On les remet à zéro, la marge intérieure propre à `.top-bar` suffisant à
+ * inscrire son contenu.
+ *
+ * La marge intérieure haute passe de 10 à 14 px : `.brand` réserve 12 px
+ * au-dessus de sa ligne pour les boucles de l'initiale calligraphiée, qui
+ * seraient sinon rognées par le haut de la fenêtre.
+ */
+#app > .top-bar {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  padding-top: 14px;
+}
 
 /* Indicateur de connexion : la pastille du kit, resserrée pour tenir dans
    320 px à côté du nom de marque. */
