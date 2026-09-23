@@ -717,22 +717,21 @@ function renderAbbreviations(): Array<Node | null> {
  * initialisation : zone morte temporelle, et apercu vide en silence. Dans Word
  * l'evenement arrive plus tard, ce qui masquait le defaut.
  */
-let sampleCache: ArticleData | null = null;
-
 function sample(): ArticleData {
-  if (!sampleCache) {
-    sampleCache = {
-      id: "LEGIARTI000006417204",
-      num: "111-1",
-      code: codeBySlug("cpen")!,
-      blocks: htmlToBlocks(
-        "<p>Les infractions pénales sont classées, suivant leur gravité, en crimes, délits et contraventions.</p>" +
-          "<p>Cette classification commande la juridiction compétente et la procédure applicable.</p>"
-      ),
-      version: normalizeVersions([{ id: "LEGIARTI000006417204", dateDebut: "1994-03-01", dateFin: null }])[0]!,
-    };
-  }
-  return sampleCache;
+  // Volontairement sans cache : une variable de module declaree ici, donc APRES
+  // l'appel a Office.onReady, retomberait dans la meme zone morte. Reconstruire
+  // deux courts paragraphes a chaque rendu ne coute rien, et la fonction est
+  // hissee, donc appelable quel que soit le moment.
+  return {
+    id: "LEGIARTI000006417204",
+    num: "111-1",
+    code: codeBySlug("cpen")!,
+    blocks: htmlToBlocks(
+      "<p>Les infractions pénales sont classées, suivant leur gravité, en crimes, délits et contraventions.</p>" +
+        "<p>Cette classification commande la juridiction compétente et la procédure applicable.</p>"
+    ),
+    version: normalizeVersions([{ id: "LEGIARTI000006417204", dateDebut: "1994-03-01", dateFin: null }])[0]!,
+  };
 }
 
 function renderPreview(): void {
