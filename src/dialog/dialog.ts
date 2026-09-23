@@ -708,22 +708,38 @@ function renderAbbreviations(): Array<Node | null> {
 /* Apercu                                                              */
 /* ------------------------------------------------------------------ */
 
-const SAMPLE: ArticleData = {
-  id: "LEGIARTI000006417204",
-  num: "111-1",
-  code: codeBySlug("cpen")!,
-  blocks: htmlToBlocks(
-    "<p>Les infractions pénales sont classées, suivant leur gravité, en crimes, délits et contraventions.</p>" +
-      "<p>Cette classification commande la juridiction compétente et la procédure applicable.</p>"
-  ),
-  version: normalizeVersions([{ id: "LEGIARTI000006417204", dateDebut: "1994-03-01", dateFin: null }])[0]!,
-};
+/**
+ * Article d'exemple de l'apercu, construit a la demande.
+ *
+ * Il etait auparavant une constante de module, declaree APRES `render()`.
+ * `Office.onReady` pouvant declencher son rappel de facon synchrone pendant
+ * l'evaluation du module, `render()` atteignait la constante avant son
+ * initialisation : zone morte temporelle, et apercu vide en silence. Dans Word
+ * l'evenement arrive plus tard, ce qui masquait le defaut.
+ */
+let sampleCache: ArticleData | null = null;
+
+function sample(): ArticleData {
+  if (!sampleCache) {
+    sampleCache = {
+      id: "LEGIARTI000006417204",
+      num: "111-1",
+      code: codeBySlug("cpen")!,
+      blocks: htmlToBlocks(
+        "<p>Les infractions pénales sont classées, suivant leur gravité, en crimes, délits et contraventions.</p>" +
+          "<p>Cette classification commande la juridiction compétente et la procédure applicable.</p>"
+      ),
+      version: normalizeVersions([{ id: "LEGIARTI000006417204", dateDebut: "1994-03-01", dateFin: null }])[0]!,
+    };
+  }
+  return sampleCache;
+}
 
 function renderPreview(): void {
   const host = document.getElementById("preview");
   if (!host) return;
 
-  const rendered = renderCitation(SAMPLE, {
+  const rendered = renderCitation(sample(), {
     style: draft.citation,
     extractedAt: new Date().toISOString().slice(0, 10),
   });
