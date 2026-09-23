@@ -63,16 +63,101 @@ Office.onReady(async (info) => {
     updateConnectionPill();
   });
 
+  registerRibbonToggle();
+  void ensureRuntimeStartsWithDocument();
+
   setupChrome();
   updateConnectionPill();
   watchSelection();
   navigate("search");
   // Sans identifiants, rien n'est possible : on ouvre directement les reglages.
-  if (!isConfigured(settings)) openSettingsDialog();
+  // Mais seulement si le volet est VISIBLE : avec le runtime partage, ce code
+  // s'execute aussi a l'ouverture d'un document, volet ferme — faire surgir
+  // une fenetre de reglages a ce moment-la serait intrusif.
+  if (!isConfigured(settings) && paneVisible) openSettingsDialog();
   void refreshSelection();
 
   await restartTrigger();
 });
+
+/* ------------------------------------------------------------------ */
+/* Bascule du volet depuis le ruban                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Visibilite courante du volet.
+ *
+ * Office n'expose pas de lecture directe : on part de l'etat de la page, puis
+ * on suit les changements. Une supposition initiale fausse ne coute qu'un clic,
+ * l'evenement remettant ensuite l'etat d'aplomb.
+ */
+let paneVisible = !document.hidden;
+
+/**
+ * Branche le bouton du ruban sur une bascule.
+ *
+ * Le manifeste declare `ExecuteFunction` plutot que `ShowTaskpane` : ce dernier
+ * ouvre le volet a chaque clic sans jamais le refermer. La fonction ci-dessous,
+ * portee par le runtime partage, alterne ouverture et fermeture.
+ */
+function registerRibbonToggle(): void {
+  try {
+    Office.addin.onVisibilityModeChanged((args) => {
+      paneVisible = args.visibilityMode === Office.VisibilityMode.taskpane;
+    });
+  } catch {
+    // Runtime partage indisponible : le bouton restera sans effet, le volet
+    // s'ouvrant alors par le menu contextuel.
+  }
+
+  // Le volet peut aussi etre ferme par sa croix, sans passer par le ruban.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) paneVisible = true;
+  });
+
+  try {
+    Office.actions.associate("basculerVolet", async () => {
+      try {
+        if (paneVisible) {
+          await Office.addin.hide();
+          paneVisible = false;
+        } else {
+          await Office.addin.showAsTaskpane();
+          paneVisible = true;
+        }
+      } catch {
+        // En cas d'echec, on tente au moins l'ouverture : un bouton qui
+        // n'ouvre rien est pire qu'un bouton qui ne referme pas.
+        try {
+          await Office.addin.showAsTaskpane();
+          paneVisible = true;
+        } catch {
+          /* rien de plus a tenter */
+        }
+      }
+    });
+  } catch {
+    /* Office.actions indisponible */
+  }
+}
+
+/**
+ * Demande a Office de demarrer le runtime avec le document.
+ *
+ * Deux benefices : le premier clic sur le ruban bascule sans attendre le
+ * chargement, et le declencheur `/art` fonctionne volet ferme — il ne
+ * fonctionnait jusqu'ici que pendant que le volet etait ouvert.
+ */
+async function ensureRuntimeStartsWithDocument(): Promise<void> {
+  try {
+    const current = await Office.addin.getStartupBehavior();
+    if (current !== Office.StartupBehavior.load) {
+      await Office.addin.setStartupBehavior(Office.StartupBehavior.load);
+    }
+  } catch {
+    /* non pris en charge : sans consequence, le volet fonctionne a l'ouverture */
+  }
+}
 
 function setupChrome(): void {
   document.getElementById("tabs")?.querySelectorAll<HTMLButtonElement>(".tab").forEach((button) => {
