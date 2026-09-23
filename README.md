@@ -144,6 +144,28 @@ n'est trouvée, **rien n'est inséré et la commande reste en place**.
 4. Si l'article n'existait pas ou était abrogé → message indiquant la période
    d'existence réelle, **rien n'est inséré**.
 
+### Charte graphique
+
+L'interface suit la charte commune aux extensions Word du cabinet, matérialisée
+par le kit `juritel-kit`. Les fichiers du kit vivent dans `src/` et **ne se
+modifient jamais sur place** : une retouche se fait dans le kit, puis on
+resynchronise.
+
+```bash
+node ../juritel-kit/tools/sync-kit.js src            # mettre à niveau
+node ../juritel-kit/tools/sync-kit.js src --check    # signaler les écarts
+grep -nE '#[0-9a-fA-F]{3,8}\b' src/*.css             # ne doit sortir que le kit
+```
+
+`src/legiword.css` est la seule feuille propre à l'extension : onglets, encarts
+de message, aperçu d'article, fenêtre de réglages. Elle n'emploie que des jetons
+`--jt-*`, d'où le thème sombre sans travail supplémentaire.
+
+Le build copie le kit dans `docs/` **tel quel** : ni empaqueté, ni minifié. La
+minification casserait des déclarations volontairement dupliquées, comme le
+`-webkit-text-stroke` de `.brand-initial` dont la première forme sert de repli
+aux navigateurs sans `color-mix`.
+
 ### Composition des citations
 
 Le bouton **⚙** ouvre une fenêtre où chaque élément s'active et se règle
