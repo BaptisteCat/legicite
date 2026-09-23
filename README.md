@@ -144,6 +144,47 @@ n'est trouvée, **rien n'est inséré et la commande reste en place**.
 4. Si l'article n'existait pas ou était abrogé → message indiquant la période
    d'existence réelle, **rien n'est inséré**.
 
+### Le bouton du ruban bascule le volet
+
+Le bouton **LégiWord** de l'onglet *Accueil* ouvre **et referme** le volet. Cela
+suppose un **runtime partagé** (`SharedRuntime 1.1`) : le volet, les commandes du
+ruban et le déclencheur `/art` partagent alors un seul contexte d'exécution, qui
+survit à la fermeture du volet.
+
+Le manifeste déclare donc `ExecuteFunction` et non `ShowTaskpane` — ce dernier
+ouvre à chaque clic sans jamais refermer. La fonction `basculerVolet` appelle
+`Office.addin.hide()` ou `Office.addin.showAsTaskpane()` selon l'état courant,
+suivi par `Office.addin.onVisibilityModeChanged`.
+
+> **Effet de bord bienvenu** : le déclencheur `/art` ne fonctionnait jusqu'ici que
+> volet ouvert, puisqu'il vivait dans la page du volet. Avec le runtime partagé et
+> un démarrage réglé sur `load`, il fonctionne **volet fermé**.
+
+Le clic droit *Consulter dans LégiWord*, lui, reste en `ShowTaskpane` : il doit
+toujours ouvrir, jamais refermer.
+
+### Logo
+
+`assets/logo.svg` est la source de vérité, et les PNG du manifeste en dérivent :
+
+```bash
+npm run icons
+```
+
+Monogramme L + W sur le dégradé de marque, en diagonale, légèrement superposés,
+le L un peu plus haut que le W. Deux choix méritent d'être connus avant toute
+retouche :
+
+- Les lettres sont les **vraies courbes** de Playfair Display SemiBold Italic —
+  la police du wordmark — extraites du woff2 du kit et converties en tracés. Le
+  SVG ne dépend donc d'aucune police installée sur la machine.
+- Les couleurs sont **lues dans `juritel-design.css`** (`--jt-grad-a`,
+  `--jt-grad-b`, `--jt-cta-ink`). Retoucher la palette du kit et relancer
+  `npm run icons` suffit : le logo suit la charte sans intervention.
+
+La composition se règle par quatre constantes en tête de `tools/generate-icons.mjs` :
+hauteur de capitale, chevauchement, décalage vertical, marge.
+
 ### Charte graphique
 
 L'interface suit la charte commune aux extensions Word du cabinet, matérialisée
