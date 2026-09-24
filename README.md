@@ -31,21 +31,14 @@ l'API Légifrance directement depuis le navigateur.
 L'extension est hébergée : il n'y a rien à construire ni à lancer. Il suffit
 d'enregistrer le manifeste auprès de Word, une fois.
 
-```powershell
-$k = "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
-New-Item -Path $k -Force | Out-Null
-New-ItemProperty $k -Name "5297a284-1216-4fd6-864a-8d21bfcaa5e7" `
-  -Value "C:\Users\bcatt\LegiCite\manifest.xml" -PropertyType String -Force
+```bash
+npm run install:word
 ```
 
-> **Nommez la valeur avec l'`<Id>` du manifeste**, pas avec un libellé lisible.
-> La documentation Microsoft présente ce nom comme libre. Sur ce poste, inscrit
-> sous `LegiCite`, le complément n'apparaissait pas dans la galerie : manifeste
-> valide au validateur Microsoft, chemin sans accent, fichier lisible, et **aucune
-> erreur le concernant dans le journal d'exécution de Word** — alors que le journal
-> nomme bien les manifestes qu'il rejette. Les deux compléments qui se chargent sur
-> ce poste sont inscrits sous leur GUID ; c'était la seule différence de structure
-> restante, et la renommer a suffi.
+Le script copie `manifest.xml` dans `%LOCALAPPDATA%\LegiCite\` et enregistre
+**cette copie** auprès de Word. Le détour est délibéré : voir *Le piège du
+chemin* ci-dessous. `npm run deploy` rafraîchit ensuite la copie à chaque
+publication, pour qu'elle ne dérive pas de l'original.
 
 Puis **fermer complètement Word et le rouvrir** : Word ne lit la liste des
 compléments de développement qu'à son démarrage.
@@ -56,36 +49,42 @@ dans le document ; le bouton du ruban apparaît ensuite.
 
 Enfin, ouvrir le volet, bouton **⚙**, et coller le client ID et le secret PISTE.
 
-### Le piège de l'accent
+### Le piège du chemin
 
-> **Word ne charge pas un manifeste dont le chemin contient un caractère accentué.**
+Deux refus de Word, tous deux **silencieux**, ont coûté cher ici. Dans les deux
+cas : entrée présente dans le registre, manifeste valide au validateur Microsoft,
+fichier lisible, **aucune ligne dans le journal d'exécution de Word** — et
+complément absent de la galerie. Le journal nomme pourtant les manifestes qu'il
+rejette pour une autre raison : ces deux-là, il ne les mentionne pas du tout.
 
-Le dossier du projet s'appelant à l'origine `LégiWord`, son `manifest.xml` était
-purement et simplement ignoré : enregistré dans le registre, valide au validateur
-Microsoft, servi en HTTPS — et pourtant absent de la galerie, sans le moindre
-message d'erreur. Le diagnostic a été établi en enregistrant côte à côte deux
-manifestes identiques, l'un à un chemin accentué et l'autre non : seul le second
-apparaissait.
+> **1. Word ne charge pas un manifeste dont le chemin contient un caractère
+> accentué.**
 
-D'où la **jonction de répertoire** qui donne un second chemin, sans accent, au même
-dossier :
+Le dossier du projet s'appelant `LégiWord`, son `manifest.xml` était ignoré. Le
+diagnostic a été établi en enregistrant côte à côte deux manifestes identiques,
+l'un à un chemin accentué et l'autre non : seul le second apparaissait.
 
-```powershell
-New-Item -ItemType Junction -Path "C:\Users\bcatt\LegiCite" -Target "C:\Users\bcatt\LégiWord"
-```
+> **2. Word ne charge pas davantage un manifeste atteint par une jonction de
+> répertoire.**
 
-Ce n'est pas une copie : c'est le même fichier vu à travers un chemin ASCII.
+La parade retenue d'abord fut une jonction `C:\Users\bcatt\LegiCite` vers le
+dossier accentué — un second chemin, en ASCII, vers le même fichier. Elle n'a
+jamais rien réglé : Word résout la jonction jusqu'au dossier réel et retombe sur
+l'accent. L'erreur de raisonnement était de l'avoir consignée comme une solution
+sans l'avoir vérifiée en tant que telle, le témoin non accentué du premier test
+étant une vraie copie et non un lien.
 
-> **Nettoyage recommandé.** Le dossier porte encore l'ancien nom, accentué. Quand
-> aucun éditeur ni terminal ne l'a pour répertoire courant :
->
-> ```powershell
-> Move-Item "C:\Users\bcatt\LégiWord" "C:\Users\bcatt\LegiCite"
-> ```
->
-> Le nom devient juste **et** sans accent : la jonction n'a alors plus de raison
-> d'être, il suffit d'enregistrer `C:\Users\bcatt\LegiCite\manifest.xml`
-> directement et de supprimer la jonction.
+Ce qui a tranché : sur ce poste, quatre compléments de développement sont
+enregistrés. Les trois qui apparaissent sont à un chemin réel sans accent — y
+compris l'un d'eux dont le manifeste est par ailleurs partiellement rejeté, ce qui
+montre au passage que le nom donné à la valeur du registre, lui, est indifférent.
+Le seul absent était le seul derrière une jonction.
+
+**D'où l'installation par copie.** Le manifeste est autonome — toutes ses URL
+pointent vers GitHub Pages, aucune ne dépend du dossier qui l'héberge. Il est donc
+copié dans `%LOCALAPPDATA%\LegiCite\`, un dossier réel et sans accent, et c'est
+cette copie qui est enregistrée. Le chemin du projet n'entre plus en jeu, et le
+problème ne peut plus se reproduire quel que soit le nom du dossier de travail.
 
 ---
 
@@ -351,15 +350,16 @@ tests/           134 tests sur la logique pure
 
 1. **Word tournait-il déjà ?** Il ne lit la liste des compléments de développement
    qu'à son démarrage. Fermez toutes les fenêtres, rouvrez.
-2. **Le manifeste est-il enregistré, et sous le bon nom ?**
+2. **Le manifeste est-il enregistré, et vers quoi ?**
    ```powershell
    Get-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
    ```
-   Le nom de la valeur doit être `5297a284-1216-4fd6-864a-8d21bfcaa5e7`, l'`<Id>`
-   du manifeste. Sous n'importe quel autre nom, Word ignore l'entrée en silence
-   (cf. *Installation*).
-3. **Le chemin contient-il un accent ?** Word l'ignorerait, silencieusement lui
-   aussi (cf. *Le piège de l'accent*).
+   La valeur doit pointer sur `%LOCALAPPDATA%\LegiCite\manifest.xml`. Si elle
+   pointe sur le dossier du projet, relancez `npm run install:word` : un chemin
+   accentué **ou** une jonction est ignoré en silence (cf. *Le piège du chemin*).
+   Le nom donné à la valeur, lui, est sans importance.
+3. **La copie est-elle à jour ?** `npm run deploy` la rafraîchit ; une
+   modification du manifeste faite sans republier reste sans effet.
 4. **Que dit le journal de Word ?** Activez-le, videz-le, redémarrez Word :
    ```powershell
    New-Item "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" -Force | Out-Null

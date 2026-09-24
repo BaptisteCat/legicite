@@ -13,6 +13,8 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { rafraichirCopie } from "./installer-word.mjs";
+
 const PROJECT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 function git(args, { allowFailure = false } = {}) {
@@ -56,4 +58,11 @@ try {
   /* on garde l'URL par defaut */
 }
 
+// Le manifeste enregistre aupres de Word est une copie prise hors du projet
+// (voir tools/installer-word.mjs). On la rafraichit ici pour qu'elle ne derive
+// pas de l'original : sans cela, une modification du manifeste resterait sans
+// effet tant que l'installation n'aurait pas ete refaite a la main.
+const copie = rafraichirCopie();
+
 console.log(`Publie. GitHub Pages met le site a jour en une minute environ :\n  ${url}taskpane.html`);
+console.log(`Manifeste installe rafraichi : ${copie}`);

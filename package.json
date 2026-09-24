@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "npm run build && node tools/deploy.mjs"
+    "deploy": "npm run build && node tools/deploy.mjs",
+    "install:word": "node tools/installer-word.mjs"
   },
   "engines": {
     "node": ">=20"
