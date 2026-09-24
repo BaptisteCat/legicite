@@ -27,8 +27,15 @@
     complements en cache par Id ET version : tant que le couple ne bouge pas, une
     version corrigee peut rester ignoree au profit de celle qui etait en cache.
   -->
-  <Version>2.0.0.0</Version>
-  <ProviderName>LégiCite</ProviderName>
+  <Version>2.1.0.0</Version>
+  <!--
+    ASCII pur, a dessein. C'est le seul champ structurel du manifeste ou un
+    accent a ete observe comme fatal : les trois complements qui se chargent sur
+    ce poste ont tous un ProviderName ASCII, celui-ci etait le seul accentue, et
+    Word l'ecartait sans rien journaliser. Les accents des chaines d'affichage,
+    eux, ne posent aucun probleme (LexRef et Xtension en ont).
+  -->
+  <ProviderName>LegiCite</ProviderName>
   <DefaultLocale>fr-FR</DefaultLocale>
   <DisplayName DefaultValue="LégiCite" />
   <Description DefaultValue="Citer et consulter les articles de loi français depuis Word, via l'API Légifrance." />

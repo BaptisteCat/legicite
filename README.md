@@ -35,59 +35,53 @@ d'enregistrer le manifeste auprès de Word, une fois.
 npm run install:word
 ```
 
-Le script copie `manifest.xml` dans `Documents\LegiCite\` et enregistre **cette
-copie** auprès de Word. L'emplacement n'est pas indifférent : voir *Où poser le
-manifeste* ci-dessous. `npm run deploy` rafraîchit ensuite la copie à chaque
-publication, pour qu'elle ne dérive pas de l'original.
+Le script fait deux choses, et la seconde n'est pas facultative :
 
-Puis **fermer complètement Word et le rouvrir** : Word ne lit la liste des
-compléments de développement qu'à son démarrage.
+- **`register`** inscrit le chemin du manifeste dans
+  `HKCU\Software\Microsoft\Office\16.0\WEF\Developer` ;
+- **`sideload`** lance Word sur un document où le complément est déjà inséré.
 
-L'extension apparaît alors dans *Accueil → Compléments → Compléments de
-Développeur*. Il faut l'y sélectionner une première fois pour qu'elle s'insère
-dans le document ; le bouton du ruban apparaît ensuite.
+Word s'ouvre alors avec LégiCite chargé. Le complément figure ensuite dans
+*Accueil → Compléments → Compléments de Développeur*, et le bouton du ruban
+apparaît dans l'onglet *Accueil*.
 
 Enfin, ouvrir le volet, bouton **⚙**, et coller le client ID et le secret PISTE.
 
-### Où poser le manifeste
+### Pourquoi `register` seul ne suffit pas
 
-> **Word ne lit pas un manifeste placé sous `%LOCALAPPDATA%` ou `%APPDATA%`** —
-> du moins pas dans un dossier créé après coup. Office en Click-to-Run virtualise
-> ces deux arborescences et n'y voit pas les nouveaux dossiers.
+> **La galerie « Compléments de Développeur » sert une liste qui peut rester
+> figée.** Une entrée fraîchement inscrite n'y apparaît pas — et rien ne le
+> signale.
 
-Le refus est **silencieux** : entrée présente dans le registre, manifeste valide
-au validateur Microsoft, fichier lisible par tout autre programme, et pourtant
-aucune ligne dans le journal d'exécution de Word, ni rien dans la galerie.
+Ni un redémarrage de Word, ni la purge complète de
+`%LOCALAPPDATA%\Microsoft\Office\16.0\Wef`, ni une modification du manifeste n'y
+changent quoi que ce soit. Le refus est **muet** : aucune ligne dans le journal
+d'exécution de Word, alors que ce journal nomme les manifestes qu'il rejette pour
+une autre raison.
 
-La méthode qui a tranché : **faire ouvrir chaque fichier par Word lui-même**, via
-`Documents.Open` en automatisation COM. Elle distingue « Word ne trouve pas le
-fichier » de « Word rejette le manifeste » — un rejet, lui, est journalisé.
+`sideload` contourne la galerie : il fabrique un `.docx` temporaire portant le
+complément et ouvre Word dessus. Word énumère alors les manifestes et retient
+**tous** ceux qui sont inscrits, y compris ceux qu'il ignorait. Après ce déclic,
+le complément se comporte normalement.
 
-| Emplacement | Word l'ouvre |
+Ce diagnostic a coûté cher parce que trois hypothèses intermédiaires ont été
+prises pour des causes, et documentées comme telles :
+
+| Hypothèse | Verdict |
 |---|---|
-| `Documents\LegiCite\` | oui — **emplacement retenu** |
-| `<profil>\<dossier neuf>\` | oui |
-| `C:\Users\bcatt\LégiWord\` — chemin accentué | oui |
-| `C:\Users\bcatt\LegiCite\` — jonction vers le dossier accentué | oui |
-| `AppData\Local\LegiCite\` | **non** |
-| `AppData\Roaming\LegiCite\` | **non** |
+| un accent dans le chemin du manifeste | fausse |
+| une jonction de répertoire vers ce chemin | fausse |
+| un emplacement sous `AppData` | fausse |
 
-Le même essai a innocenté deux suspects que ce README a un temps présentés comme
-des causes établies, à tort :
+Chacune reposait sur une corrélation observée à travers la galerie. Ce qui a
+tranché, c'est de **faire ouvrir chaque fichier par Word lui-même** via
+`Documents.Open` en automatisation COM : aucune des trois ne gênait Word. Le
+manifeste n'a jamais été en cause, et c'est précisément pour cela que rien
+n'était journalisé.
 
-- **l'accent dans le chemin** n'a jamais gêné Word ;
-- **la jonction de répertoire** non plus — elle n'était donc ni la cause, ni le
-  remède qu'on lui prêtait.
-
-Ces deux diagnostics reposaient sur des corrélations observées à travers la
-galerie, jamais sur un accès vérifié. Le nom donné à la valeur du registre est
-lui aussi indifférent : un complément enregistré sous un chemin en guise de nom
-se charge très bien.
-
-**D'où l'installation par copie.** Le manifeste est autonome — toutes ses URL
-pointent vers GitHub Pages, aucune ne dépend du dossier qui l'héberge. Il est donc
-copié dans `Documents\LegiCite\`, et c'est cette copie qui est enregistrée. Le
-chemin du projet n'entre plus en jeu, quel que soit le nom du dossier de travail.
+La leçon vaut au-delà d'ici : quand Office ignore un complément **en silence**,
+le manifeste est le mauvais endroit où chercher. Un manifeste refusé, lui, se
+plaint.
 
 ---
 
@@ -351,40 +345,41 @@ tests/           134 tests sur la logique pure
 
 ## Si l'extension n'apparaît pas
 
-1. **Word tournait-il déjà ?** Il ne lit la liste des compléments de développement
-   qu'à son démarrage. Fermez toutes les fenêtres, rouvrez.
-2. **Le manifeste est-il enregistré, et vers quoi ?**
-   ```powershell
-   Get-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
+**Le premier réflexe, et il suffit presque toujours :**
+
+```bash
+npm run install:word
+```
+
+`sideload` force Word à réénumérer les manifestes inscrits. C'est le seul geste
+qui débloque une galerie figée, et il est sans effet de bord.
+
+Si cela ne suffit pas :
+
+1. **Le manifeste est-il inscrit ?**
+   ```bash
+   npx office-addin-dev-settings registered
    ```
-   La valeur doit pointer sur `Documents\LegiCite\manifest.xml`. Si elle pointe
-   quelque part sous `AppData`, c'est la cause : relancez `npm run install:word`
-   (cf. *Où poser le manifeste*). Le nom donné à la valeur, lui, est sans
-   importance.
-3. **Word voit-il vraiment le fichier ?** La question n'est pas rhétorique : un
-   fichier illisible par Word ne produit aucune trace. Faites-le ouvrir par Word
-   lui-même, ce qui répond sans ambiguïté :
-   ```powershell
-   $w = New-Object -ComObject Word.Application
-   $w.Documents.Open("$env:USERPROFILE\Documents\LegiCite\manifest.xml", $false, $true)
+   L'outil doit citer `5297a284-1216-4fd6-864a-8d21bfcaa5e7` et le chemin du
+   `manifest.xml` du projet. Le nom donné à la valeur du registre est sans
+   importance ; son emplacement aussi, accents compris.
+2. **Le manifeste est-il valide ?**
+   ```bash
+   npm run validate
    ```
-4. **La copie est-elle à jour ?** `npm run deploy` la rafraîchit ; une
-   modification du manifeste faite sans republier reste sans effet.
-5. **Que dit le journal de Word ?** Activez-le, videz-le, redémarrez Word :
+3. **Que dit le journal de Word ?** Activez-le, videz-le, redémarrez Word :
    ```powershell
    New-Item "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" -Force | Out-Null
    Set-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" `
      -Name "(default)" -Value "C:\Users\bcatt\legicite-runtime.log"
    ```
-   Il nomme les manifestes refusés et la raison. Un manifeste qui n'y provoque
-   aucune erreur est accepté : le problème est alors l'enregistrement, pas le
-   manifeste.
-6. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
-7. **Videz le cache** de Word si un essai précédent a échoué :
-   `%LOCALAPPDATA%\Microsoft\Office\16.0\Wef\` — supprimez `AddinInfo`,
-   `AggregatedCache` et `AppCommands`, régénérés au démarrage.
-8. **Un complément de développement n'apparaît pas dans le ruban tout seul.**
-   Il faut l'insérer une première fois depuis la galerie.
+   Il nomme les manifestes refusés **et la raison**. Un silence complet ne veut
+   pas dire « tout va bien » : il veut dire que le manifeste n'est pas en cause,
+   et qu'il faut chercher du côté de l'inscription (point 1) — c'est exactement
+   le piège décrit dans *Pourquoi `register` seul ne suffit pas*.
+4. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
+5. **Un complément de développement n'apparaît pas dans le ruban tout seul.**
+   Il faut l'insérer une première fois — ce que `sideload` fait pour vous.
 
 ---
 
