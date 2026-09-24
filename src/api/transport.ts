@@ -95,18 +95,32 @@ export async function request(
     return response;
   } catch (error) {
     if (!(error instanceof LegifranceError) || error.kind !== "cors") throw error;
-    try {
-      const response = await attempt(proxied(config.proxyUrl, targetUrl), options);
-      resolvedMode = "proxy";
-      return response;
-    } catch {
+
+    /*
+     * Pas de repli sans relais explicitement configure.
+     *
+     * Le relais par defaut valait « meme origine » : la requete partait alors
+     * sur /relay?url=..., que le site statique ne sert pas. La reponse 404
+     * n'etant pas une erreur reseau, l'ancien code la prenait pour un succes,
+     * retenait « proxy » pour toute la session, et TOUS les appels suivants
+     * finissaient en 404 — un echec dont on ne pouvait plus sortir.
+     */
+    const relais = config.proxyUrl.trim();
+    if (!/^https?:\/\//i.test(relais)) {
       throw new LegifranceError(
-        "Impossible de joindre l'API Legifrance : la requete n'a pas abouti. " +
-          "Verifiez votre connexion. L'API accepte normalement les appels directs " +
-          "depuis le navigateur, aucun relais n'est necessaire.",
+        "Le navigateur a bloque l'appel a l'API Legifrance. " +
+          "Si vous etes derriere un reseau d'entreprise restrictif, renseignez un " +
+          "relais dans les reglages ; sinon, verifiez que les origines JavaScript " +
+          "de votre application PISTE autorisent bien ce site.",
         "cors"
       );
     }
+
+    const response = await attempt(proxied(relais, targetUrl), options);
+    // On ne retient le relais que s'il a REPONDU correctement : un 404 signifie
+    // qu'il n'y a pas de relais a cette adresse, pas qu'il faut s'y tenir.
+    if (response.ok) resolvedMode = "proxy";
+    return response;
   }
 }
 

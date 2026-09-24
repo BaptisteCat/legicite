@@ -544,16 +544,38 @@ function render(): void {
 }
 
 function renderPiste(): Array<Node | null> {
-  const clientId = el("input", { type: "text", value: draft.piste.clientId, autocomplete: "off" });
-  const clientSecret = el("input", { type: "password", value: draft.piste.clientSecret, autocomplete: "off" });
+  /*
+   * Les champs ecrivent DIRECTEMENT dans le brouillon, a chaque frappe.
+   *
+   * Ils ne le faisaient auparavant que sur clic de « Tester la connexion » ou
+   * « Appliquer » : saisir ses identifiants puis cliquer sur « Enregistrer »
+   * enregistrait donc les anciennes valeurs, vides. Pire, cocher une case
+   * voisine declenchait un rendu qui reconstruisait les champs depuis le
+   * brouillon, effacant la saisie en cours.
+   */
+  const clientId = el("input", {
+    type: "text",
+    value: draft.piste.clientId,
+    autocomplete: "off",
+    oninput: (event: Event) => {
+      draft.piste.clientId = (event.target as HTMLInputElement).value.trim();
+    },
+  });
+  const clientSecret = el("input", {
+    type: "password",
+    value: draft.piste.clientSecret,
+    autocomplete: "off",
+    oninput: (event: Event) => {
+      draft.piste.clientSecret = (event.target as HTMLInputElement).value.trim();
+    },
+  });
   const result = el("div", {});
 
+  // Filet de securite : si le navigateur a rempli les champs sans emettre
+  // d'evenement (remplissage automatique), on relit avant d'agir.
   const capture = () => {
-    draft.piste = {
-      clientId: clientId.value.trim(),
-      clientSecret: clientSecret.value.trim(),
-      sandbox: draft.piste.sandbox,
-    };
+    draft.piste.clientId = clientId.value.trim();
+    draft.piste.clientSecret = clientSecret.value.trim();
   };
 
   return [
