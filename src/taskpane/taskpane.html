@@ -35,6 +35,11 @@
           <span id="connection" class="jt-status" title="État de la connexion à Légifrance">À configurer</span>
           <button id="settings" class="icon-btn sm" type="button" title="Réglages"
                   aria-label="Réglages" data-icon="settings" data-icon-size="15"></button>
+          <!-- Le bouton du ruban ouvre le volet ; c'est cette croix qui le referme.
+               Un ruban qui bascule supposerait le runtime partagé déjà chargé, ce
+               qui n'est pas garanti tant que le volet n'a jamais été ouvert. -->
+          <button id="close-pane" class="icon-btn sm" type="button" title="Fermer le volet"
+                  aria-label="Fermer le volet" data-icon="close" data-icon-size="15"></button>
         </div>
       </header>
 

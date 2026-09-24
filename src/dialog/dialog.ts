@@ -571,11 +571,27 @@ function renderPiste(): Array<Node | null> {
   });
   const result = el("div", {});
 
+  /* Adresse du relais. Meme liaison a la frappe que les identifiants, et pour la
+     meme raison : un rendu declenche par une case voisine reconstruit les champs
+     depuis le brouillon et effacerait une saisie non encore capturee. */
+  const relais = el("input", {
+    type: "text",
+    value: draft.transport.proxyUrl,
+    placeholder: "https://mon-relais.workers.dev",
+    autocomplete: "off",
+    spellcheck: "false",
+    oninput: (event: Event) => {
+      draft.transport.proxyUrl = (event.target as HTMLInputElement).value.trim().replace(/\/$/, "");
+    },
+  });
+  const relaisResultat = el("div", {});
+
   // Filet de securite : si le navigateur a rempli les champs sans emettre
   // d'evenement (remplissage automatique), on relit avant d'agir.
   const capture = () => {
     draft.piste.clientId = clientId.value.trim();
     draft.piste.clientSecret = clientSecret.value.trim();
+    draft.transport.proxyUrl = relais.value.trim().replace(/\/$/, "");
   };
 
   return [
@@ -624,8 +640,10 @@ function renderPiste(): Array<Node | null> {
     el("div", {
       class: "jt-hint",
       text:
-        "L'API Légifrance accepte les appels directs depuis le navigateur : aucun relais n'est nécessaire. " +
-        "Ne changez ce réglage que si votre réseau d'entreprise bloque les appels sortants.",
+        "Les appels de données vont directement à Légifrance. L'obtention du jeton, elle, " +
+        "passe obligatoirement par un relais : PISTE répond 403 à toute demande de jeton " +
+        "portant un en-tête Origin, ce qu'un navigateur ajoute toujours. Sans relais, " +
+        "l'authentification échoue — et rien d'autre ne peut fonctionner.",
     }),
     choose<TransportMode>(
       "Accès réseau",
@@ -637,6 +655,43 @@ function renderPiste(): Array<Node | null> {
       ],
       (v) => update((d) => (d.transport.mode = v))
     ),
+    el("div", { class: "control" }, [el("label", { text: "Adresse du relais" }), relais]),
+    el("div", { class: "row" }, [
+      el(
+        "button",
+        {
+          class: "mini",
+          type: "button",
+          onclick: () => {
+            const url = relais.value.trim().replace(/\/$/, "");
+            draft.transport.proxyUrl = url;
+            if (!/^https?:\/\//i.test(url)) {
+              mount(relaisResultat, notice("error", "Renseignez une adresse commençant par https://"));
+              return;
+            }
+            mount(relaisResultat, notice("info", "Vérification…"));
+            // On interroge /health, que le Worker sert sans authentification :
+            // cela distingue « relais injoignable » de « identifiants refusés ».
+            void fetch(`${url}/health`)
+              .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`réponse ${r.status}`))))
+              .then(() => mount(relaisResultat, notice("ok", "Relais joignable.")))
+              .catch((e: unknown) =>
+                mount(
+                  relaisResultat,
+                  notice("error", `Relais injoignable : ${e instanceof Error ? e.message : String(e)}`)
+                )
+              );
+          },
+        },
+        ["Vérifier le relais"]
+      ),
+    ]),
+    relaisResultat,
+    el("div", { class: "jt-hint" }, [
+      "Le relais est un Cloudflare Worker gratuit, déployé sur votre propre compte ; son code est dans ",
+      el("code", { text: "relais/" }),
+      ". Laissé vide, LégiCite tente l'appel direct, qui échouera à l'étape du jeton.",
+    ]),
     notice(
       "warn",
       "Le secret est conservé en clair dans le stockage local de Word sur ce poste. C'est le meilleur niveau atteignable pour une extension web ; ne l'utilisez pas sur un poste partagé."

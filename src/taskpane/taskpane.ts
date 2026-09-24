@@ -63,7 +63,7 @@ Office.onReady(async (info) => {
     updateConnectionPill();
   });
 
-  registerRibbonToggle();
+  registerPaneClose();
   void ensureRuntimeStartsWithDocument();
 
   setupChrome();
@@ -94,51 +94,36 @@ Office.onReady(async (info) => {
 let paneVisible = !document.hidden;
 
 /**
- * Branche le bouton du ruban sur une bascule.
+ * Branche la fermeture du volet.
  *
- * Le manifeste declare `ExecuteFunction` plutot que `ShowTaskpane` : ce dernier
- * ouvre le volet a chaque clic sans jamais le refermer. La fonction ci-dessous,
- * portee par le runtime partage, alterne ouverture et fermeture.
+ * Le bouton du ruban est un `ShowTaskpane` : il ouvre, toujours, sans dependre
+ * d'aucun code. C'est cette croix qui referme.
+ *
+ * Le montage precedent faisait basculer le ruban par un `ExecuteFunction`. Il
+ * exigeait que le runtime partage soit deja charge, ce qui n'est pas garanti
+ * tant que le volet n'a jamais ete ouvert dans le document : le clic restait
+ * alors sans le moindre effet. Un bouton qui n'ouvre pas est pire qu'un bouton
+ * qui ne referme pas. LexRef procede de meme.
  */
-function registerRibbonToggle(): void {
+function registerPaneClose(): void {
   try {
     Office.addin.onVisibilityModeChanged((args) => {
       paneVisible = args.visibilityMode === Office.VisibilityMode.taskpane;
     });
   } catch {
-    // Runtime partage indisponible : le bouton restera sans effet, le volet
-    // s'ouvrant alors par le menu contextuel.
+    /* Runtime partage indisponible : sans effet sur la fermeture manuelle. */
   }
 
-  // Le volet peut aussi etre ferme par sa croix, sans passer par le ruban.
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) paneVisible = true;
-  });
-
-  try {
-    Office.actions.associate("basculerVolet", async () => {
+  document.getElementById("close-pane")?.addEventListener("click", () => {
+    void (async () => {
       try {
-        if (paneVisible) {
-          await Office.addin.hide();
-          paneVisible = false;
-        } else {
-          await Office.addin.showAsTaskpane();
-          paneVisible = true;
-        }
+        await Office.addin.hide();
+        paneVisible = false;
       } catch {
-        // En cas d'echec, on tente au moins l'ouverture : un bouton qui
-        // n'ouvre rien est pire qu'un bouton qui ne referme pas.
-        try {
-          await Office.addin.showAsTaskpane();
-          paneVisible = true;
-        } catch {
-          /* rien de plus a tenter */
-        }
+        // Hote sans runtime partage : la croix native de Word reste disponible.
       }
-    });
-  } catch {
-    /* Office.actions indisponible */
-  }
+    })();
+  });
 }
 
 /**

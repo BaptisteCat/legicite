@@ -27,7 +27,7 @@
     complements en cache par Id ET version : tant que le couple ne bouge pas, une
     version corrigee peut rester ignoree au profit de celle qui etait en cache.
   -->
-  <Version>2.1.0.0</Version>
+  <Version>2.2.0.0</Version>
   <!--
     ASCII pur, a dessein. C'est le seul champ structurel du manifeste ou un
     accent a ete observe comme fatal : les trois complements qui se chargent sur
@@ -123,12 +123,21 @@
                     <bt:Image size="80" resid="Icon.80" />
                   </Icon>
                   <!--
-                    ExecuteFunction, et non ShowTaskpane : `ShowTaskpane`
-                    ouvrirait le volet a chaque clic, sans jamais le refermer.
-                    La fonction, portee par le runtime partage, bascule.
+                    ShowTaskpane, et non ExecuteFunction.
+
+                    Le bouton a d'abord ete une fonction qui basculait le volet.
+                    Elle ne s'executait qu'a condition que le runtime partage soit
+                    DEJA charge : tant que le volet n'avait jamais ete ouvert dans
+                    le document, le clic ne produisait rien du tout. Un bouton qui
+                    n'ouvre pas est pire qu'un bouton qui ne referme pas.
+
+                    ShowTaskpane ne depend d'aucun code et ouvre toujours. La
+                    fermeture est offerte par la croix du volet, qui appelle
+                    Office.addin.hide() — c'est le montage de LexRef, eprouve.
                   -->
-                  <Action xsi:type="ExecuteFunction">
-                    <FunctionName>basculerVolet</FunctionName>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>LegiCiteTaskpane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url" />
                   </Action>
                 </Control>
               </Group>
