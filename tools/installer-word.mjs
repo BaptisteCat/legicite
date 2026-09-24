@@ -2,20 +2,23 @@
  * Installe le manifeste aupres de Word.
  *
  * Le manifeste est copie hors du projet, puis c'est la COPIE qui est enregistree
- * dans le registre. Ce detour n'est pas une precaution de style : il contourne
- * deux refus silencieux de Word, constates sur ce poste.
+ * dans le registre. Ce detour tient a une contrainte mesuree sur ce poste :
  *
- *   1. Word ignore un manifeste dont le chemin contient un caractere accentue.
- *      Le dossier du projet s'appelle encore « LégiWord ».
- *   2. Word ignore aussi un manifeste atteint par une JONCTION de repertoire :
- *      il la resout jusqu'au dossier reel, et retrouve l'accent. La jonction
- *      « LegiCite » creee pour masquer l'accent ne reglait donc rien — les trois
- *      autres complements de ce poste, tous a un chemin reel sans accent, se
- *      chargent ; seul celui-ci, derriere une jonction, restait invisible.
+ *   **Word ne lit pas un manifeste place sous %LOCALAPPDATA% ou %APPDATA%**,
+ *   du moins pas dans un dossier cree apres coup. Office en Click-to-Run
+ *   virtualise ces deux arborescences et n'y voit pas les nouveaux dossiers.
  *
- * Dans les deux cas Word n'ecrit rien dans son journal d'execution : le
- * complement est simplement absent de la galerie. C'est ce silence qui rend le
- * diagnostic long, et qui justifie de ne plus dependre du chemin du projet.
+ * Constate en faisant ouvrir les fichiers par Word lui-meme (Documents.Open),
+ * ce qui distingue « Word ne trouve pas le fichier » de « Word rejette le
+ * manifeste » — un rejet, lui, apparait dans le journal d'execution :
+ *
+ *   Documents\LegiCite\          ouvert      <- emplacement retenu
+ *   <profil>\<dossier neuf>\     ouvert
+ *   AppData\Local\LegiCite\      introuvable
+ *   AppData\Roaming\LegiCite\    introuvable
+ *
+ * Le meme essai a innocente deux suspects retenus a tort auparavant : un chemin
+ * accentue s'ouvre sans probleme, et une jonction de repertoire aussi.
  *
  * Le manifeste est autonome — toutes ses URL pointent vers GitHub Pages — donc
  * la copie fonctionne aussi bien que l'original. `npm run deploy` rafraichit la
@@ -30,9 +33,13 @@ import { fileURLToPath } from "node:url";
 const PROJECT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE = join(PROJECT_DIR, "manifest.xml");
 
-/** Dossier d'installation : reel, sans accent, hors du projet. */
+/**
+ * Dossier d'installation. Sous Documents, et surtout PAS sous AppData : voir
+ * l'en-tete. C'est aussi la ou vit TextCompare, qui se charge sans histoire.
+ */
 export const DOSSIER_INSTALL = join(
-  process.env.LOCALAPPDATA || join(process.env.USERPROFILE || "", "AppData", "Local"),
+  process.env.USERPROFILE || "",
+  "Documents",
   "LegiCite"
 );
 export const MANIFESTE_INSTALL = join(DOSSIER_INSTALL, "manifest.xml");

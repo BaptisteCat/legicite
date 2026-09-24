@@ -35,9 +35,9 @@ d'enregistrer le manifeste auprès de Word, une fois.
 npm run install:word
 ```
 
-Le script copie `manifest.xml` dans `%LOCALAPPDATA%\LegiCite\` et enregistre
-**cette copie** auprès de Word. Le détour est délibéré : voir *Le piège du
-chemin* ci-dessous. `npm run deploy` rafraîchit ensuite la copie à chaque
+Le script copie `manifest.xml` dans `Documents\LegiCite\` et enregistre **cette
+copie** auprès de Word. L'emplacement n'est pas indifférent : voir *Où poser le
+manifeste* ci-dessous. `npm run deploy` rafraîchit ensuite la copie à chaque
 publication, pour qu'elle ne dérive pas de l'original.
 
 Puis **fermer complètement Word et le rouvrir** : Word ne lit la liste des
@@ -49,42 +49,45 @@ dans le document ; le bouton du ruban apparaît ensuite.
 
 Enfin, ouvrir le volet, bouton **⚙**, et coller le client ID et le secret PISTE.
 
-### Le piège du chemin
+### Où poser le manifeste
 
-Deux refus de Word, tous deux **silencieux**, ont coûté cher ici. Dans les deux
-cas : entrée présente dans le registre, manifeste valide au validateur Microsoft,
-fichier lisible, **aucune ligne dans le journal d'exécution de Word** — et
-complément absent de la galerie. Le journal nomme pourtant les manifestes qu'il
-rejette pour une autre raison : ces deux-là, il ne les mentionne pas du tout.
+> **Word ne lit pas un manifeste placé sous `%LOCALAPPDATA%` ou `%APPDATA%`** —
+> du moins pas dans un dossier créé après coup. Office en Click-to-Run virtualise
+> ces deux arborescences et n'y voit pas les nouveaux dossiers.
 
-> **1. Word ne charge pas un manifeste dont le chemin contient un caractère
-> accentué.**
+Le refus est **silencieux** : entrée présente dans le registre, manifeste valide
+au validateur Microsoft, fichier lisible par tout autre programme, et pourtant
+aucune ligne dans le journal d'exécution de Word, ni rien dans la galerie.
 
-Le dossier du projet s'appelant `LégiWord`, son `manifest.xml` était ignoré. Le
-diagnostic a été établi en enregistrant côte à côte deux manifestes identiques,
-l'un à un chemin accentué et l'autre non : seul le second apparaissait.
+La méthode qui a tranché : **faire ouvrir chaque fichier par Word lui-même**, via
+`Documents.Open` en automatisation COM. Elle distingue « Word ne trouve pas le
+fichier » de « Word rejette le manifeste » — un rejet, lui, est journalisé.
 
-> **2. Word ne charge pas davantage un manifeste atteint par une jonction de
-> répertoire.**
+| Emplacement | Word l'ouvre |
+|---|---|
+| `Documents\LegiCite\` | oui — **emplacement retenu** |
+| `<profil>\<dossier neuf>\` | oui |
+| `C:\Users\bcatt\LégiWord\` — chemin accentué | oui |
+| `C:\Users\bcatt\LegiCite\` — jonction vers le dossier accentué | oui |
+| `AppData\Local\LegiCite\` | **non** |
+| `AppData\Roaming\LegiCite\` | **non** |
 
-La parade retenue d'abord fut une jonction `C:\Users\bcatt\LegiCite` vers le
-dossier accentué — un second chemin, en ASCII, vers le même fichier. Elle n'a
-jamais rien réglé : Word résout la jonction jusqu'au dossier réel et retombe sur
-l'accent. L'erreur de raisonnement était de l'avoir consignée comme une solution
-sans l'avoir vérifiée en tant que telle, le témoin non accentué du premier test
-étant une vraie copie et non un lien.
+Le même essai a innocenté deux suspects que ce README a un temps présentés comme
+des causes établies, à tort :
 
-Ce qui a tranché : sur ce poste, quatre compléments de développement sont
-enregistrés. Les trois qui apparaissent sont à un chemin réel sans accent — y
-compris l'un d'eux dont le manifeste est par ailleurs partiellement rejeté, ce qui
-montre au passage que le nom donné à la valeur du registre, lui, est indifférent.
-Le seul absent était le seul derrière une jonction.
+- **l'accent dans le chemin** n'a jamais gêné Word ;
+- **la jonction de répertoire** non plus — elle n'était donc ni la cause, ni le
+  remède qu'on lui prêtait.
+
+Ces deux diagnostics reposaient sur des corrélations observées à travers la
+galerie, jamais sur un accès vérifié. Le nom donné à la valeur du registre est
+lui aussi indifférent : un complément enregistré sous un chemin en guise de nom
+se charge très bien.
 
 **D'où l'installation par copie.** Le manifeste est autonome — toutes ses URL
 pointent vers GitHub Pages, aucune ne dépend du dossier qui l'héberge. Il est donc
-copié dans `%LOCALAPPDATA%\LegiCite\`, un dossier réel et sans accent, et c'est
-cette copie qui est enregistrée. Le chemin du projet n'entre plus en jeu, et le
-problème ne peut plus se reproduire quel que soit le nom du dossier de travail.
+copié dans `Documents\LegiCite\`, et c'est cette copie qui est enregistrée. Le
+chemin du projet n'entre plus en jeu, quel que soit le nom du dossier de travail.
 
 ---
 
@@ -354,13 +357,20 @@ tests/           134 tests sur la logique pure
    ```powershell
    Get-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
    ```
-   La valeur doit pointer sur `%LOCALAPPDATA%\LegiCite\manifest.xml`. Si elle
-   pointe sur le dossier du projet, relancez `npm run install:word` : un chemin
-   accentué **ou** une jonction est ignoré en silence (cf. *Le piège du chemin*).
-   Le nom donné à la valeur, lui, est sans importance.
-3. **La copie est-elle à jour ?** `npm run deploy` la rafraîchit ; une
+   La valeur doit pointer sur `Documents\LegiCite\manifest.xml`. Si elle pointe
+   quelque part sous `AppData`, c'est la cause : relancez `npm run install:word`
+   (cf. *Où poser le manifeste*). Le nom donné à la valeur, lui, est sans
+   importance.
+3. **Word voit-il vraiment le fichier ?** La question n'est pas rhétorique : un
+   fichier illisible par Word ne produit aucune trace. Faites-le ouvrir par Word
+   lui-même, ce qui répond sans ambiguïté :
+   ```powershell
+   $w = New-Object -ComObject Word.Application
+   $w.Documents.Open("$env:USERPROFILE\Documents\LegiCite\manifest.xml", $false, $true)
+   ```
+4. **La copie est-elle à jour ?** `npm run deploy` la rafraîchit ; une
    modification du manifeste faite sans republier reste sans effet.
-4. **Que dit le journal de Word ?** Activez-le, videz-le, redémarrez Word :
+5. **Que dit le journal de Word ?** Activez-le, videz-le, redémarrez Word :
    ```powershell
    New-Item "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" -Force | Out-Null
    Set-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" `
@@ -369,11 +379,11 @@ tests/           134 tests sur la logique pure
    Il nomme les manifestes refusés et la raison. Un manifeste qui n'y provoque
    aucune erreur est accepté : le problème est alors l'enregistrement, pas le
    manifeste.
-5. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
-6. **Videz le cache** de Word si un essai précédent a échoué :
+6. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
+7. **Videz le cache** de Word si un essai précédent a échoué :
    `%LOCALAPPDATA%\Microsoft\Office\16.0\Wef\` — supprimez `AddinInfo`,
    `AggregatedCache` et `AppCommands`, régénérés au démarrage.
-7. **Un complément de développement n'apparaît pas dans le ruban tout seul.**
+8. **Un complément de développement n'apparaît pas dans le ruban tout seul.**
    Il faut l'insérer une première fois depuis la galerie.
 
 ---
