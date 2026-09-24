@@ -34,8 +34,18 @@ d'enregistrer le manifeste auprès de Word, une fois.
 ```powershell
 $k = "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
 New-Item -Path $k -Force | Out-Null
-New-ItemProperty $k -Name "LegiCite" -Value "C:\Users\bcatt\LegiCite\manifest.xml" -PropertyType String -Force
+New-ItemProperty $k -Name "5297a284-1216-4fd6-864a-8d21bfcaa5e7" `
+  -Value "C:\Users\bcatt\LegiCite\manifest.xml" -PropertyType String -Force
 ```
+
+> **Nommez la valeur avec l'`<Id>` du manifeste**, pas avec un libellé lisible.
+> La documentation Microsoft présente ce nom comme libre. Sur ce poste, inscrit
+> sous `LegiCite`, le complément n'apparaissait pas dans la galerie : manifeste
+> valide au validateur Microsoft, chemin sans accent, fichier lisible, et **aucune
+> erreur le concernant dans le journal d'exécution de Word** — alors que le journal
+> nomme bien les manifestes qu'il rejette. Les deux compléments qui se chargent sur
+> ce poste sont inscrits sous leur GUID ; c'était la seule différence de structure
+> restante, et la renommer a suffi.
 
 Puis **fermer complètement Word et le rouvrir** : Word ne lit la liste des
 compléments de développement qu'à son démarrage.
@@ -341,15 +351,29 @@ tests/           134 tests sur la logique pure
 
 1. **Word tournait-il déjà ?** Il ne lit la liste des compléments de développement
    qu'à son démarrage. Fermez toutes les fenêtres, rouvrez.
-2. **Le manifeste est-il enregistré ?**
+2. **Le manifeste est-il enregistré, et sous le bon nom ?**
    ```powershell
    Get-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
    ```
-3. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
-4. **Videz le cache** de Word si un essai précédent a échoué :
+   Le nom de la valeur doit être `5297a284-1216-4fd6-864a-8d21bfcaa5e7`, l'`<Id>`
+   du manifeste. Sous n'importe quel autre nom, Word ignore l'entrée en silence
+   (cf. *Installation*).
+3. **Le chemin contient-il un accent ?** Word l'ignorerait, silencieusement lui
+   aussi (cf. *Le piège de l'accent*).
+4. **Que dit le journal de Word ?** Activez-le, videz-le, redémarrez Word :
+   ```powershell
+   New-Item "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" -Force | Out-Null
+   Set-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer\RuntimeLogging" `
+     -Name "(default)" -Value "C:\Users\bcatt\legicite-runtime.log"
+   ```
+   Il nomme les manifestes refusés et la raison. Un manifeste qui n'y provoque
+   aucune erreur est accepté : le problème est alors l'enregistrement, pas le
+   manifeste.
+5. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
+6. **Videz le cache** de Word si un essai précédent a échoué :
    `%LOCALAPPDATA%\Microsoft\Office\16.0\Wef\` — supprimez `AddinInfo`,
    `AggregatedCache` et `AppCommands`, régénérés au démarrage.
-5. **Un complément de développement n'apparaît pas dans le ruban tout seul.**
+7. **Un complément de développement n'apparaît pas dans le ruban tout seul.**
    Il faut l'insérer une première fois depuis la galerie.
 
 ---
