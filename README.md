@@ -100,11 +100,11 @@ Une page web ne peut donc pas obtenir de jeton. Et sans jeton, rien ne fonctionn
 
 ### Relais pour l'authentification
 
-`tools/relais-piste.js` est un Cloudflare Worker d'une centaine de lignes qui fait
+`relais/` contient un Cloudflare Worker d'une centaine de lignes qui fait
 la seule chose qui manque : émettre la requête de jeton côté serveur, sans en-tête
 `Origin`, et renvoyer la réponse avec les en-têtes CORS. Gratuit, déployé sur votre
-compte, rien à faire tourner sur le poste. Les instructions sont en tête du
-fichier ; l'adresse obtenue se colle dans ⚙ → *Accès réseau* → **Relais**.
+compte, rien à faire tourner sur le poste. Les instructions sont dans
+`relais/README.md` ; l'adresse obtenue se colle dans ⚙ → *Accès réseau* → **Relais**.
 
 Environ un appel par heure, le jeton étant valable une heure.
 
