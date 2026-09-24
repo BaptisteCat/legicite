@@ -26,13 +26,22 @@ Dans le tableau de bord Cloudflare, *Workers & Pages* → importer le dépôt
 
 | Champ | Valeur |
 |---|---|
-| Répertoire racine | `relais` |
+| Répertoire racine | *(vide — la racine du dépôt)* |
 | Commande de build | *(vide)* |
 | Commande de deploy | `npx wrangler deploy` |
 
-Le **répertoire racine** est le réglage qui compte : sans lui, Cloudflare
-tenterait d'installer les dépendances de l'extension — dont `sharp`, qui n'a rien
-à faire dans un Worker.
+La configuration du Worker, `wrangler.toml`, est **à la racine du dépôt** : c'est
+de là que Cloudflare lance `wrangler deploy` par défaut, et `main` y désigne
+`relais/src/index.js`. Seul ce fichier est déployé.
+
+Laisser la commande de build vide évite de reconstruire l'extension pour rien. Si
+elle reste à `npm run build`, le déploiement fonctionne quand même, il est
+seulement plus lent.
+
+> **Premier échec rencontré, et sa cause.** Sans `wrangler.toml`, wrangler
+> cherchait un dossier de fichiers statiques à publier et abandonnait faute d'en
+> trouver un : `Could not detect a directory containing static files`. La présence
+> de `main` lui dit de déployer un script, et le problème disparaît.
 
 Le Worker se redéploie ensuite à chaque publication de l'extension.
 

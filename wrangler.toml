@@ -1,0 +1,22 @@
+# Relais d'authentification PISTE — configuration Cloudflare Worker.
+#
+# Ce fichier est À LA RACINE du dépôt, et non dans relais/, à dessein :
+# Cloudflare lance `wrangler deploy` depuis la racine tant qu'on ne lui a pas
+# indiqué de répertoire racine. Le poser ici évite d'avoir à toucher ce réglage.
+#
+# La présence de `main` est ce qui règle le premier échec de déploiement : sans
+# configuration, wrangler cherchait un dossier de fichiers statiques à publier et
+# abandonnait faute d'en trouver un. Avec `main`, il déploie un script, et rien
+# d'autre du dépôt n'est envoyé.
+#
+# Le Worker lui-même vit dans relais/src/index.js. Voir relais/README.md pour ce
+# qu'il fait et pourquoi il est nécessaire.
+#
+# Réglages Cloudflare correspondants :
+#   Répertoire racine  : (laisser vide — la racine du dépôt)
+#   Commande de build  : (laisser vide — le build de l'extension est inutile ici)
+#   Commande de deploy : npx wrangler deploy
+
+name = "legicite-relais"
+main = "relais/src/index.js"
+compatibility_date = "2026-09-01"
