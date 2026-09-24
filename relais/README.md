@@ -53,7 +53,8 @@ d'autre à configurer.
 
 ## Ensuite
 
-Copier l'adresse du Worker et la coller dans LégiCite :
+Le Worker répond à `https://legicite.b-cattaertgalland.workers.dev`. Coller cette
+adresse dans LégiCite :
 **⚙ → Accès réseau → Relais**, mode sur « Automatique », Enregistrer.
 
 ## Sécurité

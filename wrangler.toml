@@ -17,6 +17,9 @@
 #   Commande de build  : (laisser vide — le build de l'extension est inutile ici)
 #   Commande de deploy : npx wrangler deploy
 
-name = "legicite-relais"
+name = "legicite"
 main = "relais/src/index.js"
 compatibility_date = "2026-09-01"
+
+# Le nom doit etre celui du projet Cloudflare, sinon la CI le remplace en
+# avertissant et propose une pull request pour corriger l'ecart.
