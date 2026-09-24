@@ -79,25 +79,50 @@ Ce n'est pas une copie : c'est le même fichier vu à travers un chemin ASCII.
 
 ---
 
-## Le CORS, et pourquoi il n'y a pas de relais
+## Le CORS : données en direct, authentification par relais
 
-L'API Légifrance **accepte les appels directs depuis un navigateur**. `/search`,
-`/consult/getArticle` et `/list/code` renvoient un CORS complet, depuis n'importe
-quelle origine — vérifié à la main sur trois origines distinctes.
+Les deux moitiés de l'API ne se comportent pas de la même façon, et c'est toute la
+difficulté du montage.
 
-Une seule exception, et elle a coûté cher : les routes de santé `/consult/ping` et
-`/search/ping` répondent au contrôle préalable avec `access-control-allow-headers`
-et `access-control-allow-methods`, mais **omettent `access-control-allow-origin`**.
-Ce seul en-tête manquant suffit à faire rejeter la requête par le navigateur.
+**Les données passent en direct.** `/search`, `/consult/getArticle` et `/list/code`
+renvoient un CORS complet — contrôle préalable avec `access-control-allow-origin`,
+`-methods` et `-headers`, et en-tête sur la réponse réelle — depuis n'importe
+quelle origine.
 
-Le bouton « Tester la connexion » interrogeait précisément ces routes. On en a
-conclu à tort que l'API ne supportait pas le CORS, et tout le trafic a été détourné
-vers un relais local pendant deux semaines — sans que rien ne le signale, puisque
-tout fonctionnait par ce chemin.
+**L'authentification, non.** Mesuré, en production comme en bac à sable :
 
-Le test de connexion interroge désormais un endpoint réel, et le relais a disparu.
-Le réglage *Accès réseau* reste disponible pour les réseaux d'entreprise qui
-bloquent les appels sortants, mais il n'est plus utilisé par défaut.
+| Requête vers `oauth.piste.gouv.fr/api/oauth/token` | Réponse |
+|---|---|
+| Sans en-tête `Origin` (appel serveur) | **400** — l'erreur OAuth normale |
+| Avec en-tête `Origin` (appel navigateur) | **403**, sans aucun en-tête CORS |
+
+Une page web ne peut donc pas obtenir de jeton. Et sans jeton, rien ne fonctionne.
+
+### Relais pour l'authentification
+
+`tools/relais-piste.js` est un Cloudflare Worker d'une centaine de lignes qui fait
+la seule chose qui manque : émettre la requête de jeton côté serveur, sans en-tête
+`Origin`, et renvoyer la réponse avec les en-têtes CORS. Gratuit, déployé sur votre
+compte, rien à faire tourner sur le poste. Les instructions sont en tête du
+fichier ; l'adresse obtenue se colle dans ⚙ → *Accès réseau* → **Relais**.
+
+Environ un appel par heure, le jeton étant valable une heure.
+
+**LégiCite ne bascule sur le relais que pour l'hôte qui en a besoin** : les appels
+de données continuent d'aller directement à Légifrance. Le mode retenu est mémorisé
+par hôte, pas pour toute la session.
+
+### Une fausse piste qui a coûté deux semaines
+
+Les routes de santé `/consult/ping` et `/search/ping` répondent au contrôle
+préalable avec `access-control-allow-headers` et `-methods`, mais **omettent
+`access-control-allow-origin`**. Le bouton « Tester la connexion » interrogeait
+précisément ces routes : on en a conclu que l'API entière refusait le CORS, et tout
+le trafic — authentification comprise — a été détourné vers un relais local. Le
+montage fonctionnait, donc rien ne signalait l'erreur de diagnostic.
+
+Le test porte désormais sur un endpoint réel, et distingue explicitement l'échec
+d'authentification de l'échec d'un point d'entrée.
 
 ---
 

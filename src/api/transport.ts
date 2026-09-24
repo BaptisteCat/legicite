@@ -33,15 +33,33 @@ export interface TransportConfig {
  */
 export const DEFAULT_PROXY_URL = "";
 
-/** Mode effectivement retenu pour la session, une fois la bascule tranchee. */
-let resolvedMode: "direct" | "proxy" | null = null;
+/**
+ * Mode retenu, PAR HOTE.
+ *
+ * L'API Legifrance accepte le CORS, mais le point d'authentification de PISTE le
+ * refuse : il repond 403 des qu'un en-tete Origin est present. Les deux hotes ne
+ * se comportent donc pas pareil, et un mode unique pour toute la session
+ * detournerait inutilement les appels de donnees vers le relais.
+ */
+const resolvedByHost = new Map<string, "direct" | "proxy">();
 
-export function resetTransportMode(): void {
-  resolvedMode = null;
+function hostOf(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
 }
 
+export function resetTransportMode(): void {
+  resolvedByHost.clear();
+}
+
+/** Mode du dernier hote resolu, pour l'affichage du test de connexion. */
 export function currentTransportMode(): "direct" | "proxy" | null {
-  return resolvedMode;
+  const modes = [...resolvedByHost.values()];
+  if (modes.length === 0) return null;
+  return modes.includes("proxy") ? "proxy" : "direct";
 }
 
 function proxied(proxyUrl: string, target: string): string {
@@ -82,16 +100,19 @@ export async function request(
   const useProxy = (mode: "direct" | "proxy") =>
     mode === "proxy" ? proxied(config.proxyUrl, targetUrl) : targetUrl;
 
+  const host = hostOf(targetUrl);
+
   if (config.mode !== "auto") {
-    resolvedMode = config.mode;
+    resolvedByHost.set(host, config.mode);
     return attempt(useProxy(config.mode), options);
   }
 
-  if (resolvedMode) return attempt(useProxy(resolvedMode), options);
+  const connu = resolvedByHost.get(host);
+  if (connu) return attempt(useProxy(connu), options);
 
   try {
     const response = await attempt(targetUrl, options);
-    resolvedMode = "direct";
+    resolvedByHost.set(host, "direct");
     return response;
   } catch (error) {
     if (!(error instanceof LegifranceError) || error.kind !== "cors") throw error;
@@ -119,7 +140,7 @@ export async function request(
     const response = await attempt(proxied(relais, targetUrl), options);
     // On ne retient le relais que s'il a REPONDU correctement : un 404 signifie
     // qu'il n'y a pas de relais a cette adresse, pas qu'il faut s'y tenir.
-    if (response.ok) resolvedMode = "proxy";
+    if (response.ok) resolvedByHost.set(host, "proxy");
     return response;
   }
 }

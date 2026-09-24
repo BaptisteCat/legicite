@@ -9,6 +9,8 @@
  */
 
 import { apiBase, getAccessToken } from "./auth";
+// getAccessToken est aussi appele directement par ping(), pour distinguer
+// l'echec d'authentification de l'echec d'un point d'entree.
 import { request, toError, type TransportConfig } from "./transport";
 import {
   LegifranceError,
@@ -62,6 +64,31 @@ async function call<T>(ctx: ClientContext, path: string, body: unknown, method: 
  * l'echec comme reel que si aucun ne repond.
  */
 export async function ping(ctx: ClientContext): Promise<string> {
+  /*
+   * Le jeton D'ABORD, comme etape distincte.
+   *
+   * Melangee aux tentatives d'endpoint, une panne d'authentification etait
+   * comptee comme un echec d'endpoint, et le message final affirmait pourtant
+   * que « le jeton a bien ete obtenu » — exactement le contraire de la realite.
+   */
+  try {
+    await getAccessToken(ctx.credentials, ctx.transport);
+  } catch (error) {
+    if (error instanceof LegifranceError && error.kind === "cors") {
+      throw new LegifranceError(
+        "L'obtention du jeton a ete bloquee par le navigateur.\n\n" +
+          "Le point d'authentification de PISTE refuse les requetes venant d'une page web : " +
+          "il repond 403 des qu'un en-tete Origin est present, et sans en-tete CORS. " +
+          "Les appels de donnees, eux, passent sans probleme.\n\n" +
+          "Il faut donc un relais pour cette seule etape. Voir « Relais pour " +
+          "l'authentification » dans le README : un petit service a deployer une fois, " +
+          "dont l'adresse se colle dans le champ Relais ci-dessous.",
+        "cors"
+      );
+    }
+    throw error;
+  }
+
   const attempts: Array<{ label: string; run: () => Promise<unknown> }> = [
     // On teste sur un endpoint REEL, jamais sur /consult/ping ni /search/ping.
     //
