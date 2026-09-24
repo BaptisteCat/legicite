@@ -1,5 +1,5 @@
 {
-  "name": "legiword",
+  "name": "legicite",
   "version": "0.1.0",
   "private": true,
   "description": "Extension Word de citation et de consultation des textes legaux francais (API Legifrance / PISTE).",

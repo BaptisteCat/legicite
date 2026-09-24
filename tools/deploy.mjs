@@ -1,5 +1,5 @@
 /**
- * Publie LegiWord sur GitHub Pages.
+ * Publie LegiCite sur GitHub Pages.
  *
  * GitHub Pages sert le dossier docs/ de la branche main. Publier revient donc a
  * committer la sortie du build et a pousser — il n'y a ni serveur a heberger,
@@ -47,7 +47,7 @@ const horodatage = new Date().toISOString().slice(0, 16).replace("T", " ");
 git(["commit", "-m", `Publication du ${horodatage}`]);
 git(["push"]);
 
-let url = "https://baptistecat.github.io/legiword/";
+let url = "https://baptistecat.github.io/legicite/";
 try {
   const remote = execFileSync("git", ["remote", "get-url", "origin"], { cwd: PROJECT_DIR, encoding: "utf8" }).trim();
   const match = /github\.com[:/]([^/]+)\/([^/.]+)/.exec(remote);

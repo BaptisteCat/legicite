@@ -69,7 +69,42 @@ export const DEFAULT_SETTINGS: Settings = {
   displayOverrides: {},
 };
 
-const KEY = "legiword:settings";
+const KEY = "legicite:settings";
+
+/**
+ * Cles de l'ancien nom de l'extension, LegiWord.
+ *
+ * Le renommage change la cle de stockage : sans reprise, l'utilisateur
+ * retrouverait des reglages vides et devrait ressaisir ses identifiants PISTE.
+ * On recopie donc l'ancien enregistrement une fois, puis on efface les traces.
+ */
+const LEGACY_KEY = "legiword:settings";
+const LEGACY_CACHE_PREFIX = "legiword:cache:";
+
+let migrated = false;
+
+function migrateLegacyStorage(): void {
+  if (migrated) return;
+  migrated = true;
+  try {
+    if (localStorage.getItem(KEY) === null) {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy !== null) localStorage.setItem(KEY, legacy);
+    }
+    localStorage.removeItem(LEGACY_KEY);
+
+    // Le cache de l'ancien nom n'est pas repris : il se reconstruit seul, et le
+    // laisser traineraient des entrees orphelines dans le stockage de Word.
+    const obsoletes: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(LEGACY_CACHE_PREFIX)) obsoletes.push(key);
+    }
+    obsoletes.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    /* stockage indisponible : on repart des valeurs par defaut */
+  }
+}
 
 let current: Settings | null = null;
 const listeners = new Set<(settings: Settings) => void>();
@@ -110,6 +145,8 @@ function merge(stored: Partial<Settings> & { template?: PresetId }): Settings {
 
 export function loadSettings(): Settings {
   if (current) return current;
+  // Reprise de l'ancien nom au premier chargement, avant toute lecture.
+  migrateLegacyStorage();
   try {
     const raw = localStorage.getItem(KEY);
     current = raw ? merge(JSON.parse(raw) as Partial<Settings>) : { ...DEFAULT_SETTINGS };
@@ -144,7 +181,7 @@ export function isConfigured(settings: Settings = loadSettings()): boolean {
 export function exportAbbreviations(settings: Settings = loadSettings()): string {
   return JSON.stringify(
     {
-      format: "legiword-abreviations",
+      format: "legicite-abreviations",
       version: 1,
       customAbbreviations: settings.customAbbreviations,
       displayOverrides: settings.displayOverrides,
@@ -167,8 +204,8 @@ export function importAbbreviations(json: string): ImportResult {
       customAbbreviations?: Record<string, string>;
       displayOverrides?: Record<string, string>;
     };
-    if (parsed.format !== "legiword-abreviations") {
-      return { ok: false, added: 0, error: "Ce fichier n'est pas un export d'abreviations LegiWord." };
+    if (parsed.format !== "legicite-abreviations") {
+      return { ok: false, added: 0, error: "Ce fichier n'est pas un export d'abreviations LegiCite." };
     }
     const settings = loadSettings();
     const custom = { ...settings.customAbbreviations, ...(parsed.customAbbreviations ?? {}) };

@@ -1,4 +1,4 @@
-# LégiWord
+# LégiCite
 
 Extension Word de citation et de consultation des textes légaux français, adossée à
 l'API Légifrance (plateforme PISTE).
@@ -12,7 +12,7 @@ Aucun modèle de langage n'intervient : la résolution des références est dét
 et locale. **Aucun serveur non plus** : le volet est servi par GitHub Pages et appelle
 l'API Légifrance directement depuis le navigateur.
 
-> Hébergé sur <https://baptistecat.github.io/legiword/>
+> Hébergé sur <https://baptistecat.github.io/legicite/>
 
 ---
 
@@ -34,7 +34,7 @@ d'enregistrer le manifeste auprès de Word, une fois.
 ```powershell
 $k = "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
 New-Item -Path $k -Force | Out-Null
-New-ItemProperty $k -Name "LegiWord" -Value "C:\Users\bcatt\LegiWord\manifest.xml" -PropertyType String -Force
+New-ItemProperty $k -Name "LegiCite" -Value "C:\Users\bcatt\LegiCite\manifest.xml" -PropertyType String -Force
 ```
 
 Puis **fermer complètement Word et le rouvrir** : Word ne lit la liste des
@@ -50,20 +50,32 @@ Enfin, ouvrir le volet, bouton **⚙**, et coller le client ID et le secret PIST
 
 > **Word ne charge pas un manifeste dont le chemin contient un caractère accentué.**
 
-Le dossier du projet s'appelant `LégiWord`, son `manifest.xml` était purement et
-simplement ignoré : enregistré dans le registre, valide au validateur Microsoft,
-servi en HTTPS — et pourtant absent de la galerie, sans le moindre message
-d'erreur. Le diagnostic a été établi en enregistrant côte à côte deux manifestes
-identiques, l'un à un chemin accentué et l'autre non : seul le second apparaissait.
+Le dossier du projet s'appelant à l'origine `LégiWord`, son `manifest.xml` était
+purement et simplement ignoré : enregistré dans le registre, valide au validateur
+Microsoft, servi en HTTPS — et pourtant absent de la galerie, sans le moindre
+message d'erreur. Le diagnostic a été établi en enregistrant côte à côte deux
+manifestes identiques, l'un à un chemin accentué et l'autre non : seul le second
+apparaissait.
 
 D'où la **jonction de répertoire** qui donne un second chemin, sans accent, au même
 dossier :
 
 ```powershell
-New-Item -ItemType Junction -Path "C:\Users\bcatt\LegiWord" -Target "C:\Users\bcatt\LégiWord"
+New-Item -ItemType Junction -Path "C:\Users\bcatt\LegiCite" -Target "C:\Users\bcatt\LégiWord"
 ```
 
 Ce n'est pas une copie : c'est le même fichier vu à travers un chemin ASCII.
+
+> **Nettoyage recommandé.** Le dossier porte encore l'ancien nom, accentué. Quand
+> aucun éditeur ni terminal ne l'a pour répertoire courant :
+>
+> ```powershell
+> Move-Item "C:\Users\bcatt\LégiWord" "C:\Users\bcatt\LegiCite"
+> ```
+>
+> Le nom devient juste **et** sans accent : la jonction n'a alors plus de raison
+> d'être, il suffit d'enregistrer `C:\Users\bcatt\LegiCite\manifest.xml`
+> directement et de supprimer la jonction.
 
 ---
 
@@ -97,7 +109,7 @@ bloquent les appels sortants, mais il n'est plus utilisé par défaut.
 |---|---|
 | Dans le document | Tapez `/art 111-1 cpen` puis **Entrée** |
 | Dans le volet | Le préfixe est facultatif : `111-1 cpen` suffit |
-| Ruban | Onglet *Accueil*, groupe **LégiWord** |
+| Ruban | Onglet *Accueil*, groupe **LégiCite** |
 
 ```
 /art  111-1 cpen                 un article
@@ -146,7 +158,7 @@ n'est trouvée, **rien n'est inséré et la commande reste en place**.
 
 ### Le bouton du ruban bascule le volet
 
-Le bouton **LégiWord** de l'onglet *Accueil* ouvre **et referme** le volet. Cela
+Le bouton **LégiCite** de l'onglet *Accueil* ouvre **et referme** le volet. Cela
 suppose un **runtime partagé** (`SharedRuntime 1.1`) : le volet, les commandes du
 ruban et le déclencheur `/art` partagent alors un seul contexte d'exécution, qui
 survit à la fermeture du volet.
@@ -160,7 +172,7 @@ suivi par `Office.addin.onVisibilityModeChanged`.
 > volet ouvert, puisqu'il vivait dans la page du volet. Avec le runtime partagé et
 > un démarrage réglé sur `load`, il fonctionne **volet fermé**.
 
-Le clic droit *Consulter dans LégiWord*, lui, reste en `ShowTaskpane` : il doit
+Le clic droit *Consulter dans LégiCite*, lui, reste en `ShowTaskpane` : il doit
 toujours ouvrir, jamais refermer.
 
 ### Logo
@@ -171,8 +183,8 @@ toujours ouvrir, jamais refermer.
 npm run icons
 ```
 
-Monogramme L + W sur le dégradé de marque, en diagonale, légèrement superposés,
-le L un peu plus haut que le W. Deux choix méritent d'être connus avant toute
+Monogramme L + C sur le dégradé de marque, en diagonale, légèrement superposés,
+le L un peu plus haut que le C. Deux choix méritent d'être connus avant toute
 retouche :
 
 - Les lettres sont les **vraies courbes** de Playfair Display SemiBold Italic —
@@ -198,7 +210,7 @@ node ../juritel-kit/tools/sync-kit.js src --check    # signaler les écarts
 grep -nE '#[0-9a-fA-F]{3,8}\b' src/*.css             # ne doit sortir que le kit
 ```
 
-`src/legiword.css` est la seule feuille propre à l'extension : onglets, encarts
+`src/legicite.css` est la seule feuille propre à l'extension : onglets, encarts
 de message, aperçu d'article, fenêtre de réglages. Elle n'emploie que des jetons
 `--jt-*`, d'où le thème sombre sans travail supplémentaire.
 
@@ -308,7 +320,7 @@ tests/           134 tests sur la logique pure
    ```powershell
    Get-ItemProperty "HKCU:\Software\Microsoft\Office\16.0\WEF\Developer"
    ```
-3. **Le site répond-il ?** <https://baptistecat.github.io/legiword/taskpane.html>
+3. **Le site répond-il ?** <https://baptistecat.github.io/legicite/taskpane.html>
 4. **Videz le cache** de Word si un essai précédent a échoué :
    `%LOCALAPPDATA%\Microsoft\Office\16.0\Wef\` — supprimez `AddinInfo`,
    `AggregatedCache` et `AppCommands`, régénérés au démarrage.
@@ -329,4 +341,4 @@ Le client ID et le secret PISTE sont conservés dans le stockage local de Word, 
 le poste de l'utilisateur. Ils ne figurent pas dans ce dépôt et ne transitent par
 aucun tiers : les appels vont du navigateur directement à PISTE.
 
-LégiWord n'est pas un service officiel et n'émane ni de la DILA ni de Légifrance.
+LégiCite n'est pas un service officiel et n'émane ni de la DILA ni de Légifrance.

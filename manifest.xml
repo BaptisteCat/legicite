@@ -22,13 +22,13 @@
   <!-- Office refuse toute version inferieure a 1.0.0.0, independamment de la
        maturite reelle du produit (package.json reste en 0.x). -->
   <Version>1.0.0.0</Version>
-  <ProviderName>LégiWord</ProviderName>
+  <ProviderName>LégiCite</ProviderName>
   <DefaultLocale>fr-FR</DefaultLocale>
-  <DisplayName DefaultValue="LégiWord" />
+  <DisplayName DefaultValue="LégiCite" />
   <Description DefaultValue="Citer et consulter les articles de loi français depuis Word, via l'API Légifrance." />
-  <IconUrl DefaultValue="https://baptistecat.github.io/legiword/assets/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://baptistecat.github.io/legiword/assets/icon-80.png" />
-  <SupportUrl DefaultValue="https://baptistecat.github.io/legiword/" />
+  <IconUrl DefaultValue="https://baptistecat.github.io/legicite/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://baptistecat.github.io/legicite/assets/icon-80.png" />
+  <SupportUrl DefaultValue="https://baptistecat.github.io/legicite/" />
 
   <AppDomains>
     <AppDomain>https://baptistecat.github.io</AppDomain>
@@ -67,7 +67,7 @@
   </Requirements>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://baptistecat.github.io/legiword/taskpane.html" />
+    <SourceLocation DefaultValue="https://baptistecat.github.io/legicite/taskpane.html" />
   </DefaultSettings>
 
   <Permissions>ReadWriteDocument</Permissions>
@@ -93,7 +93,7 @@
           <!-- Ruban : onglet Accueil -->
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <OfficeTab id="TabHome">
-              <Group id="LegiWord.Group">
+              <Group id="LegiCite.Group">
                 <Label resid="Group.Label" />
                 <Icon>
                   <bt:Image size="16" resid="Icon.16" />
@@ -105,7 +105,7 @@
                   Un seul bouton : toutes les fonctions (citer, verifier,
                   reglages) vivent dans les onglets du volet lateral.
                 -->
-                <Control xsi:type="Button" id="LegiWord.Open">
+                <Control xsi:type="Button" id="LegiCite.Open">
                   <Label resid="Open.Label" />
                   <Supertip>
                     <Title resid="Open.Label" />
@@ -136,7 +136,7 @@
           -->
           <ExtensionPoint xsi:type="ContextMenu">
             <OfficeMenu id="ContextMenuText">
-              <Control xsi:type="Button" id="LegiWord.Consult">
+              <Control xsi:type="Button" id="LegiCite.Consult">
                 <Label resid="Consult.Label" />
                 <Supertip>
                   <Title resid="Consult.Label" />
@@ -148,7 +148,7 @@
                   <bt:Image size="80" resid="Icon.80" />
                 </Icon>
                 <Action xsi:type="ShowTaskpane">
-                  <TaskpaneId>LegiWordTaskpane</TaskpaneId>
+                  <TaskpaneId>LegiCiteTaskpane</TaskpaneId>
                   <SourceLocation resid="Taskpane.Url" />
                 </Action>
               </Control>
@@ -160,21 +160,21 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16" DefaultValue="https://baptistecat.github.io/legiword/assets/icon-16.png" />
-        <bt:Image id="Icon.32" DefaultValue="https://baptistecat.github.io/legiword/assets/icon-32.png" />
-        <bt:Image id="Icon.80" DefaultValue="https://baptistecat.github.io/legiword/assets/icon-80.png" />
+        <bt:Image id="Icon.16" DefaultValue="https://baptistecat.github.io/legicite/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="https://baptistecat.github.io/legicite/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="https://baptistecat.github.io/legicite/assets/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://baptistecat.github.io/legiword/taskpane.html" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://baptistecat.github.io/legicite/taskpane.html" />
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="Group.Label" DefaultValue="LégiWord" />
+        <bt:String id="Group.Label" DefaultValue="LégiCite" />
         <bt:String id="Open.Label" DefaultValue="Ouvrir le volet" />
-        <bt:String id="Consult.Label" DefaultValue="Consulter dans LégiWord" />
-        <bt:String id="GetStarted.Title" DefaultValue="LégiWord est installé" />
+        <bt:String id="Consult.Label" DefaultValue="Consulter dans LégiCite" />
+        <bt:String id="GetStarted.Title" DefaultValue="LégiCite est installé" />
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="Open.Tip" DefaultValue="Ouvre le volet LégiWord : citer un article, vérifier le document, réglages." />
+        <bt:String id="Open.Tip" DefaultValue="Ouvre le volet LégiCite : citer un article, vérifier le document, réglages." />
         <bt:String id="Consult.Tip" DefaultValue="Affiche dans le volet l'article visé par le texte sélectionné." />
         <bt:String id="GetStarted.Description" DefaultValue="Renseignez vos identifiants PISTE dans les réglages du volet pour commencer." />
       </bt:LongStrings>

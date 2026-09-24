@@ -8,7 +8,7 @@
  *
  * On ne peut pas le savoir sans compte PISTE : le transport essaie donc
  * l'appel direct, et bascule automatiquement sur un relais LOCAL (lance sur le
- * poste de l'utilisateur, cf. tools/legiword-proxy.mjs) si le navigateur bloque
+ * poste de l'utilisateur, cf. tools/legicite-proxy.mjs) si le navigateur bloque
  * la requete. Le choix "aucun serveur a heberger" reste ainsi tenable.
  *
  * Un echec CORS est indiscernable d'une panne reseau depuis le code appelant :

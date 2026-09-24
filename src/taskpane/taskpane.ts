@@ -53,7 +53,7 @@ let selectionRefs: DetectedReference[] = [];
 
 Office.onReady(async (info) => {
   if (info.host !== Office.HostType.Word) {
-    mount(view(), notice("error", "LégiWord ne fonctionne que dans Word."));
+    mount(view(), notice("error", "LégiCite ne fonctionne que dans Word."));
     return;
   }
 
@@ -712,7 +712,7 @@ async function restartTrigger(): Promise<void> {
   await stopTriggerWatcher();
   if (!settings.triggerInDocument) return;
   if (!isTriggerSupported()) {
-    console.info("LégiWord : WordApi 1.6 indisponible, le déclencheur /art est désactivé.");
+    console.info("LégiCite : WordApi 1.6 indisponible, le déclencheur /art est désactivé.");
     return;
   }
 

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LÉGIWORD · feuille propre à l'extension
+   LÉGICITE · feuille propre à l'extension
    --------------------------------------------------------------------------
    À charger APRÈS juritel-design.css et addin.css. Ne contient que ce que le
    kit ne couvre pas : les onglets du volet, les encarts de message, l'aperçu
@@ -185,12 +185,12 @@
   border: 2px solid var(--jt-line);
   border-top-color: var(--jt-accent);
   border-radius: var(--jt-r-pill);
-  animation: legiword-spin .7s linear infinite;
+  animation: legicite-spin .7s linear infinite;
   vertical-align: -2px;
   margin-right: 6px;
   flex: none;
 }
-@keyframes legiword-spin { to { transform: rotate(360deg); } }
+@keyframes legicite-spin { to { transform: rotate(360deg); } }
 
 
 /* ==========================================================================

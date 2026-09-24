@@ -10,7 +10,7 @@
  * qu'elle est a jour.
  */
 
-const PREFIX = "legiword:cache:";
+const PREFIX = "legicite:cache:";
 
 interface Entry<T> {
   value: T;

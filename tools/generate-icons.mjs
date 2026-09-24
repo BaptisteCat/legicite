@@ -1,7 +1,7 @@
 /**
- * Logo et icônes de LégiWord.
+ * Logo et icônes de LégiCite.
  *
- * Monogramme L + W sur le dégradé de marque : les deux lettres sont posées en
+ * Monogramme L + C sur le dégradé de marque : les deux lettres sont posées en
  * diagonale, légèrement superposées, le L un peu plus haut que le W.
  *
  * Deux principes :
@@ -35,11 +35,11 @@ const DESIGN = join(PROJECT_DIR, "src", "juritel-design.css");
 /** Hauteur de capitale des lettres. */
 const CAP = 34;
 /** Chevauchement horizontal, en part de la largeur du L. */
-const OVERLAP = 0.32;
+const OVERLAP = 0.26;
 /** Décalage vertical du W sous le L, en part de la hauteur de capitale. */
 const DROP = 0.4;
 /** Marge autour du monogramme, en part du côté. */
-const MARGIN = 0.15;
+const MARGIN = 0.18;
 /** Rayon des coins, en part du côté — dans l'esprit de --jt-r-xl. */
 const RADIUS = 0.22;
 
@@ -72,8 +72,9 @@ function glyphPath(char) {
   return glyph.path;
 }
 
+/** Les deux initiales du monogramme : LégiCite. */
 const rawL = glyphPath("L");
-const rawW = glyphPath("W");
+const rawW = glyphPath("C");
 
 // Hauteur de capitale mesurée sur le L lui-même : plus fiable que les
 // métriques déclarées, qui incluent parfois des débordements.
@@ -119,7 +120,7 @@ function buildSvg({ margin, stroke }) {
   const contour = stroke > 0 ? ` stroke="${INK}" stroke-width="${(stroke / fit).toFixed(3)}" stroke-linejoin="round"` : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-  <title>LégiWord</title>
+  <title>LégiCite</title>
   <defs>
     <!-- Dégradé de marque, 135° : du coin haut-gauche au coin bas-droit,
          dans l'axe de la diagonale que suivent les deux lettres. -->

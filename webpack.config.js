@@ -43,7 +43,7 @@ module.exports = async (env, argv) => {
       filename: "[name].js",
       clean: true,
       // Chemins relatifs : le site est servi sous un sous-chemin
-      // (/legiword/), pas a la racine du domaine.
+      // (/legicite/), pas a la racine du domaine.
       publicPath: "",
     },
     resolve: {
@@ -95,7 +95,7 @@ module.exports = async (env, argv) => {
             "src/fonts.css",
             "src/theme.js",
             "src/icons.js",
-            "src/legiword.css",
+            "src/legicite.css",
           ].map((from) => ({ from, to: ".", info: { minimized: true } })),
           { from: "src/fonts", to: "fonts", info: { minimized: true } },
         ],

@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LégiWord</title>
+    <title>LégiCite</title>
 
     <!-- Ordre imposé par la charte : jetons, puis coquille, puis feuille propre. -->
     <link rel="stylesheet" href="juritel-design.css" />
     <link rel="stylesheet" href="addin.css" />
-    <link rel="stylesheet" href="legiword.css" />
+    <link rel="stylesheet" href="legicite.css" />
 
     <!--
       Office.js doit imperativement etre charge depuis le CDN Microsoft, non
@@ -19,7 +19,7 @@
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <!-- Juste apres office.js : pose le theme avant le premier rendu, sinon le
          volet s'ouvre en clair puis bascule et le clignotement se voit. -->
-    <script src="theme.js" data-key="legiword.theme"></script>
+    <script src="theme.js" data-key="legicite.theme"></script>
     <script src="icons.js"></script>
   </head>
 
@@ -27,7 +27,7 @@
     <div id="app">
       <header class="top-bar">
         <div class="top-left">
-          <span class="brand"><span class="brand-initial">L</span>égiWord</span>
+          <span class="brand"><span class="brand-initial">L</span>égiCite</span>
         </div>
         <div class="top-actions">
           <!-- Libellé identique à celui que pose updateConnectionPill : sans cela,
