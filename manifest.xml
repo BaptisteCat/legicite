@@ -19,9 +19,15 @@
   xsi:type="TaskPaneApp">
 
   <Id>5297a284-1216-4fd6-864a-8d21bfcaa5e7</Id>
-  <!-- Office refuse toute version inferieure a 1.0.0.0, independamment de la
-       maturite reelle du produit (package.json reste en 0.x). -->
-  <Version>1.0.0.0</Version>
+  <!--
+    Office refuse toute version inferieure a 1.0.0.0, independamment de la
+    maturite reelle du produit (package.json reste en 0.x).
+
+    INCREMENTER CE NUMERO a chaque changement du manifeste. Office met les
+    complements en cache par Id ET version : tant que le couple ne bouge pas, une
+    version corrigee peut rester ignoree au profit de celle qui etait en cache.
+  -->
+  <Version>2.0.0.0</Version>
   <ProviderName>LégiCite</ProviderName>
   <DefaultLocale>fr-FR</DefaultLocale>
   <DisplayName DefaultValue="LégiCite" />
@@ -30,15 +36,11 @@
   <HighResolutionIconUrl DefaultValue="https://baptistecat.github.io/legicite/assets/icon-80.png" />
   <SupportUrl DefaultValue="https://baptistecat.github.io/legicite/" />
 
-  <AppDomains>
-    <AppDomain>https://baptistecat.github.io</AppDomain>
-    <AppDomain>https://localhost:3000</AppDomain>
-    <AppDomain>https://api.piste.gouv.fr</AppDomain>
-    <AppDomain>https://oauth.piste.gouv.fr</AppDomain>
-    <AppDomain>https://sandbox-api.piste.gouv.fr</AppDomain>
-    <AppDomain>https://sandbox-oauth.piste.gouv.fr</AppDomain>
-    <AppDomain>https://www.legifrance.gouv.fr</AppDomain>
-  </AppDomains>
+  <!--
+    Pas d'<AppDomains> : le volet ne navigue jamais hors de son origine. La
+    fenetre de reglages est servie par le meme site, et les appels a l'API
+    Legifrance sont des requetes fetch, que le CORS regit — pas AppDomains.
+  -->
 
   <Hosts>
     <Host Name="Document" />
@@ -48,12 +50,14 @@
     Declaration des jeux d'API requis. Techniquement optionnelle au schema,
     mais tous les add-ins qui se chargent correctement sur ce poste la
     fournissent ; sans elle Word peut ecarter le complement.
-    1.3 est le socle : les fonctions exigeant 1.5 (notes de bas de page) et
-    1.6 (declencheur a la frappe) sont testees a l'execution et degradent
-    proprement si elles manquent.
+    WordApi 1.3 est le socle : les fonctions exigeant 1.5 (notes de bas de page)
+    et 1.6 (declencheur a la frappe) sont testees a l'execution et degradent
+    proprement si elles manquent. Chaque Set porte sa version explicite, ce qui
+    rend DefaultMinVersion inerte ; il vaut 1.1 par alignement sur les autres
+    complements de ce poste.
   -->
   <Requirements>
-    <Sets DefaultMinVersion="1.3">
+    <Sets DefaultMinVersion="1.1">
       <!--
         SharedRuntime : le volet, les commandes du ruban et le declencheur /art
         partagent un seul contexte d'execution, qui survit a la fermeture du
@@ -82,11 +86,6 @@
         </Runtimes>
 
         <DesktopFormFactor>
-          <GetStarted>
-            <Title resid="GetStarted.Title" />
-            <Description resid="GetStarted.Description" />
-            <LearnMoreUrl resid="Taskpane.Url" />
-          </GetStarted>
 
           <FunctionFile resid="Taskpane.Url" />
 
@@ -171,12 +170,10 @@
         <bt:String id="Group.Label" DefaultValue="LégiCite" />
         <bt:String id="Open.Label" DefaultValue="Ouvrir le volet" />
         <bt:String id="Consult.Label" DefaultValue="Consulter dans LégiCite" />
-        <bt:String id="GetStarted.Title" DefaultValue="LégiCite est installé" />
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="Open.Tip" DefaultValue="Ouvre le volet LégiCite : citer un article, vérifier le document, réglages." />
         <bt:String id="Consult.Tip" DefaultValue="Affiche dans le volet l'article visé par le texte sélectionné." />
-        <bt:String id="GetStarted.Description" DefaultValue="Renseignez vos identifiants PISTE dans les réglages du volet pour commencer." />
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--
+  Page d'accueil du site publie, et cible de <SupportUrl> dans le manifeste.
+
+  Sans elle, https://baptistecat.github.io/legicite/ renvoyait 404 : GitHub Pages
+  ne sert rien pour un repertoire depourvu d'index.html. Word affiche ce lien
+  depuis la galerie des complements, sous « Obtenir de l'aide ».
+
+  Elle est servie a la racine de docs/ : le dossier public/ y est recopie tel
+  quel par webpack, `clean: true` vidant docs/ a chaque construction.
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LégiCite</title>
+  <link rel="icon" href="assets/icon-32.png">
+
+  <link rel="stylesheet" href="juritel-design.css">
+  <style>
+    /* Jetons uniquement : aucune couleur, ombre, rayon ni police en dur. */
+    body {
+      margin: 0;
+      padding: 48px 20px 64px;
+      background: var(--jt-bg);
+      color: var(--jt-ink);
+      font-family: var(--jt-font);
+      line-height: 1.6;
+    }
+    main { max-width: 42rem; margin: 0 auto; }
+    .entete { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+    .entete img { width: 44px; height: 44px; border-radius: var(--jt-r-sm); }
+    h1 {
+      font-family: var(--jt-font-display);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 2rem;
+      margin: 0;
+      color: var(--jt-title-color);
+    }
+    .accroche { color: var(--jt-ink-2); margin: 0 0 36px; }
+    h2 {
+      font-size: 1rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--jt-ink-2);
+      margin: 36px 0 10px;
+    }
+    /* font-family volontairement absent : la feuille de style du navigateur
+       donne deja une chasse fixe a <code>, et le kit n'expose pas de jeton
+       de police monospace. */
+    code {
+      font-size: .9em;
+      background: var(--jt-card-2);
+      border: 1px solid var(--jt-line);
+      border-radius: var(--jt-r-xs);
+      padding: .1em .4em;
+    }
+    a { color: var(--jt-accent); }
+    ul { padding-left: 1.2em; }
+    footer {
+      margin-top: 48px;
+      padding-top: 18px;
+      border-top: 1px solid var(--jt-line);
+      color: var(--jt-ink-2);
+      font-size: .875rem;
+    }
+  </style>
+  <script src="theme.js" data-key="legicite.theme"></script>
+</head>
+<body>
+  <main>
+    <div class="entete">
+      <img src="assets/icon-80.png" alt="">
+      <h1>LégiCite</h1>
+    </div>
+    <p class="accroche">
+      Citer et consulter les articles de loi français depuis Word, via l'API
+      Légifrance.
+    </p>
+
+    <h2>Citer</h2>
+    <p>
+      Dans le document, tapez <code>/art 111-1 cpen</code> puis <strong>Entrée</strong>.
+      L'article est inséré <em>in extenso</em>, composé selon vos réglages.
+    </p>
+    <ul>
+      <li><code>/art 111-1, 111-2 et 111-3 cpen</code> — une liste</li>
+      <li><code>/art 111-1 à 111-5 cpen</code> — une plage, résolue par le sommaire du code</li>
+      <li><code>/artv 1353 cciv 2020</code> — la version en vigueur à une date</li>
+      <li><code>/citart</code> — l'article annoncé par la phrase qui précède</li>
+    </ul>
+
+    <h2>Consulter</h2>
+    <p>
+      Sélectionnez une référence dans le texte, clic droit,
+      <em>Consulter dans LégiCite</em> : l'article s'affiche dans le volet, sans
+      quitter le document.
+    </p>
+
+    <h2>Aide</h2>
+    <p>
+      L'installation, les réglages et le dépannage sont décrits dans le
+      <a href="https://github.com/BaptisteCat/legicite#readme">README du dépôt</a>.
+      Un compte <a href="https://piste.gouv.fr">PISTE</a> abonné à l'API Légifrance
+      est nécessaire ; l'accès est gratuit après inscription.
+    </p>
+
+    <footer>
+      Les données proviennent de Légifrance et sont diffusées sous
+      <strong>Licence Ouverte 2.0</strong> : réutilisation libre, sous réserve de
+      mentionner la source et la date d'extraction.
+    </footer>
+  </main>
+</body>
+</html>
